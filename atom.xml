@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[白驼山庄]]></title>
+  <link href="chenrenyi.github.io/atom.xml" rel="self"/>
+  <link href="chenrenyi.github.io/"/>
+  <updated>2020-02-16T20:47:05+08:00</updated>
+  <id>chenrenyi.github.io/</id>
+  <author>
+    <name><![CDATA[]]></name>
+    
+  </author>
+  <generator uri="http://www.mweb.im/">MWeb</generator>
+  
+  <entry>
+    <title type="html"><![CDATA[第一篇文章]]></title>
+    <link href="chenrenyi.github.io/15818551802185.html"/>
+    <updated>2020-02-16T20:13:00+08:00</updated>
+    <id>chenrenyi.github.io/15818551802185.html</id>
+    <content type="html"><![CDATA[
+<p>因新冠肺炎疫情呆在家里的第 26 天，闲来无事第 n 次搭建博客，写下同样第 n 次的开篇文章。</p>
+
+<span id="more"></span><!-- more -->
+
+<p>这一次用的 Mweb，Mac 上一个 Markdown 写作软件，自带静态博客创建和发布功能，支持自定义发布脚本。日常在编辑器书写，完成后一键发布即可。</p>
+
+<p>当然了，这软件是收费的。国内开发者，做得挺用心。比如我个人很喜欢的一个小功能是，“在中文和半角的英文、数字之间插入空格”，Github 上也有开源实现，称呼这种空格为盘古白，各编程语言版本都有。与 Word 和手机微信的聊天框显示效果类似。其实代码实现并不复杂，但能从中一窥作者对排版和用户体验的细节追求。</p>
+
+<p>有缘看到的兄弟可以试试。</p>
+
+]]></content>
+  </entry>
+  
+</feed>
