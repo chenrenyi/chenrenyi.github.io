@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>
     
-  第一篇文章 - 白驼山庄
+  iText 生成 pdf 不显示生僻字问题 - 白驼山庄
   
   </title>
  <meta name="description" content="往者不可谏，来者尚可追">
@@ -94,17 +94,137 @@
             <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-<h1>第一篇文章</h1>
+<h1>iText 生成 pdf 不显示生僻字问题</h1>
 
-<p>因新冠肺炎疫情呆在家里的第 26 天，闲来无事第 n 次搭建博客，写下同样第 n 次的开篇文章。</p>
+<h2 id="toc_0">一、问题描述</h2>
 
-<span id="more"></span><!-- more -->
+<p>iText 生成的 pdf，无法显示某些生僻字，比如【㙓】、【𠅤】。在遇到生僻字时不会显示成方块，而是直接不显示。<br/>
+<span id="more"></span><!-- more --></p>
 
-<p>这一次用的 Mweb（页脚权限声明那有官网链接），Mac 上一个 Markdown 写作软件，自带静态博客创建和发布功能，支持自定义发布脚本。日常在编辑器书写，完成后一键发布即可。</p>
+<h2 id="toc_1">二、原来生成 pdf 的过程</h2>
 
-<p>当然了，这软件是收费的。国内开发者，做得挺用心。比如我个人很喜欢的一个小功能是，“在中文和半角的英文、数字之间插入空格”，Github 上也有开源实现，称呼这种空格为盘古白，各编程语言版本都有。与 Word 和手机微信的聊天框显示效果类似。其实代码实现并不复杂，但能从中一窥作者对排版和用户体验的细节追求。</p>
+<p>1、用 FreeMarker 模板引擎生成 html，html 里面的 css 指定了字体文件</p>
 
-<p>有缘看到的兄弟可以试试。如果软件作者看到了，记得给我打钱啊😆</p>
+<pre><code class="language-css">body {font-family: SimSun}
+</code></pre>
+
+<p>2、添加 SimSun 字体文件</p>
+
+<pre><code class="language-java">new ITextRenderer().getFontResolver().addFont(&quot;SimSun.ttf&quot;)
+</code></pre>
+
+<p>3、用 iText 框架将 html 转化成 pdf 文件</p>
+
+<pre><code class="language-java">renderer.setDocumentFromString(content, storagePath);
+</code></pre>
+
+<h2 id="toc_2">三、原因分析</h2>
+
+<p>原因简单说来，就是 SimSun.ttf（中易宋体，也是 windows 系统默认字体）中未收录某些生僻字，所以生成的 pdf 中显示不出来。</p>
+
+<p>至于为啥不收录以及对应的解决办法，需要先了解下计算机是如何显示汉字的。或者也可以直接跳过看最终解决方案，再回过头看原理。</p>
+
+<h2 id="toc_3">四、相关知识</h2>
+
+<h3 id="toc_4">汉字的数字化历史</h3>
+
+<h4 id="toc_5">1、汉字有多少个</h4>
+
+<p><strong>生活中的情况</strong>：我国义务教育阶段要求识字 3500 个左右，2013 年国务院发布的《通用规范汉字表》，收录汉字 8105 个，分为三级，其中一级字为常用字共 3500个，二级字 3000 个，三级字 1605 个。</p>
+
+<p><strong>书本中的情况</strong>：东汉的《说文解字》收字 9353 个，清朝《康熙字典》收字 47,035 个，当代的《汉语大字典》（2010 年版) 收字 60,370 个。 1994 年中华书局、中国友谊出版公司出版的《中华字海》收字 85,568 个。</p>
+
+<p>据估算总汉字约 10 万个，具体数字无人清楚。</p>
+
+<h4 id="toc_6">2、把汉字放进计算机，汉字编码历史</h4>
+
+<p>想用计算机传输存储文字，必然要有编码方案。但汉字实在太多，所以编码方案是演进型的，初期只收录的字数很少，后面才慢慢扩充。</p>
+
+<p><strong>国标：</strong><br/>
+1981 年：发布 GB2312—1980，收录汉字 6763 个和非汉字图形字符 682 个<br/>
+1995 年：发布 GBK，收录 21886 个汉字和图形符号<br/>
+2001 年：发布 GB18030，共收录汉字 70,244 个</p>
+
+<p><strong>unicode：</strong><br/>
+unicode 的目的是国际通行，而国际上汉字使用除中国外，还有日韩。因此为了统一汉字编码，有了中日韩统一表意文字 (即 CJK，各国英文名首字母)。为啥要讲 unicode 呢，因为编程语言对它的支持好啊。</p>
+
+<p>从1991年到2018年，先是发布了第一版，后来陆续增加了扩展表 A、B、C、D、E、F区</p>
+
+<h4 id="toc_7">3、把汉字显示出来，字体文件</h4>
+
+<p>有了编码方案，还要有字体文件，知道如何把汉字画出来。因为汉字数量太多，编码方案是演进型的，所以字体文件也只提供了一部分汉字。</p>
+
+<p>常用字体文件格式：<br/>
+ttf：最常用的，微软和苹果合推的<br/>
+ttc：本质是多个ttf的集合<br/>
+otf：是ttf的升级版，测试发现iText框架貌似不支持</p>
+
+<p>我从网上下载的许多号称超大字符集的字体文件，里面都是分为好几个 ttf 文件的。有两个原因，一是常用字已经有字体文件了，因此只需要再提供一份生僻字的文件即可。二是有ttf格式有数量上限，没法放下全部的字。</p>
+
+<h3 id="toc_8">字体显示的 fallback 机制</h3>
+
+<p>上面解释了为什么单个字体文件没包含所有字，但实际上的情况是，有些字在系统上和浏览器中能看到，比如举例中的【𠅤】，而 pdf 中却不显示呢？</p>
+
+<h4 id="toc_9">1、操作系统/浏览器是怎么处理字体缺失的？</h4>
+
+<p>fallback，即回退机制：如果指定用字体 A 来显示某字符 x，但该字体并不支持这个字符（甚至该字体当前不可用），排版引擎通常不会直接放弃，它会根据一个预先记好的列表来尝试寻找能显示字符 x 的字体，如果找到字体 B 能行，那就用字体 B 来显示字符 x。字体 B 就是当前这个情况的 fallback。</p>
+
+<h4 id="toc_10">2、生成 pdf 时为啥不支持 fallback？</h4>
+
+<p>pdf：主要用于打印和阅读，而非编辑。有一个特点是：它可以将文字、字型、格式、颜色及独立于设备和分辨率的图形图像等封装在一个文件中，个人理解就是跟图片一样，封装了所有的显示效果，所以无论在什么平台打开，排版效果都是一样的。</p>
+
+<p>所以它是一个独立的不依赖于平台的格式，个人猜测这也就是为什么它不支持操作系统的fallback机制。</p>
+
+<h2 id="toc_11">五、解决方案</h2>
+
+<p>知道了单个字体不包含所有文件，pdf 也不支持 fallback 机制后，解决方案如下：</p>
+
+<p>1、引入最新版 SimSun.ttf，SimSun-extB.ttf 两个文件，我从 win10 最新版中导入的，经测试前者包含 cjk 与扩展 A 区的字体，后者包含其它区的字体。</p>
+
+<p>2、iText 框架添加上面两个字体，参见 2.2</p>
+
+<p>3、html 中指定默认字体为 SimSun，参见 2.1</p>
+
+<p>4、遍历 html 内容，扫描出 B 区及以后的字体，手动指定字体格式 SimSun-ExtB。代码如下：</p>
+
+<pre><code class="language-java">    /**
+     * 扫描待转化成pdf的html内容，为生僻字指定生僻字体，解决生僻字不显示的问题
+     */
+    private String addFontFamilyForUncommonWords(String string) {
+        int[] stringUnicodes = StringUtils.toCodePoints(string);
+        StringBuffer resultString = new StringBuffer();
+
+        for (int charUnicode : stringUnicodes) {
+            // 中易宋体(simsun)含有常规字符及cjk扩展表A的内容，中易宋体扩展版(simsun-extb)有cjk其它扩展表区内容
+            Character.UnicodeBlock ub = Character.UnicodeBlock.of(charUnicode);
+            if (ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_B
+                    || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_C
+                    || ub == Character.UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS_EXTENSION_D) {
+                resultString.append(&quot;&lt;font style=&#39;font-family: SimSun-ExtB&#39;&gt;&quot;);
+                resultString.append(Character.toChars(charUnicode));
+                resultString.append(&quot;&lt;/font&gt;&quot;);
+            } else {
+                resultString.append(Character.toChars(charUnicode));
+            }
+        }
+
+        return resultString.toString();
+    }
+</code></pre>
+
+<h2 id="toc_12">六、其它方案</h2>
+
+<h4 id="toc_13">1、换框架，不用 iText。</h4>
+
+<p>网上搜索其它 pdf 框架结果很少，因此未作尝试</p>
+
+<h4 id="toc_14">2、css 中指定多个字体解决</h4>
+
+<p>经测试，在 css 的 font-family 中指定多个字体，生成 pdf 时只按顺序使用第一个存在的字体，即常用字体在前只显示常用字，生僻字体在前只显示生僻字。原因相关知识中有写，生成 pdf 时不支持 fallback 机制。</p>
+
+<h4 id="toc_15">3、默认字体指定为一个超全超大的字体文件</h4>
+
+<p>相关知识中有介绍，ttf 格式有字形上限，收录字形想全必须存在多个文件。同时 iText 不支持 otf 格式，支持 ttc 格式但必须指定序号，即用 ttc 中包含的哪一个 ttf，因此不行。</p>
 
 
 </div>
@@ -116,13 +236,14 @@
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
-	        <a href="15827936185226.html"  title="Previous Post: iText 生成 pdf 不显示生僻字问题">&laquo; iText 生成 pdf 不显示生僻字问题</a>
-	    
 	</div>
   </div>
   <div class="large-6 columns">
 	<div class="text-right" style="padding:15px 0px;">
 		
+	        <a href="15818551802185.html" 
+	        title="Next Post: 第一篇文章">第一篇文章 &raquo;</a>
+	    
 	</div>
   </div>
 </div>
@@ -135,7 +256,7 @@
 </div>
 <script type="text/javascript">
 	$(function(){
-		var currentURL = '15818551802185.html';
+		var currentURL = '15827936185226.html';
 		$('#side-nav a').each(function(){
 			if($(this).attr('href') == currentURL){
 				$(this).parent().addClass('active');
@@ -198,6 +319,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">
