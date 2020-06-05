@@ -61,9 +61,11 @@ body {
   background: #fff;
   color: #222;
   cursor: auto;
-  font-family: "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-family: "Source Sans Pro", "Helvetica Neue", Arial, sans-serif;
   font-style: normal;
   font-weight: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   line-height: 1.5;
   margin: 0;
   padding: 0;
@@ -3915,7 +3917,7 @@ blockquote p {
     font-size: 2.75rem; }
 
   h2 {
-    font-size: 2.3125rem; }
+    font-size: 1.5rem; }
 
   h3 {
     font-size: 1.6875rem; }
