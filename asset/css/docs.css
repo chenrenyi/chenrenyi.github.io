@@ -180,7 +180,7 @@ ul.off-canvas-list li a:hover {
     -ms-text-size-adjust: 100%;
     -webkit-text-size-adjust: 100%;
     color: #304455;
-    overflow: hidden;
+    /*overflow: hidden;*/
     font-size: 16px;
     line-height: 1.6;
     word-wrap: break-word;
@@ -409,16 +409,16 @@ strong {
     position: relative;
 }
 
-.markdown-body h3:before {
+.markdown-body h3[id]:before {
     content: "#";
     color: #42b983;
     position: absolute;
-    /*left: -0.7em;*/
-    /*margin-top: -0.05em;*/
-    /*padding-right: 0.5em;*/
-    /*font-size: 1.2em;*/
-    /*line-height: 1;*/
-    /*font-weight: bold;*/
+    left: -0.7em;
+    margin-top: -0.05em;
+    padding-right: 0.5em;
+    font-size: 1.2em;
+    line-height: 1;
+    font-weight: bold;
 }
 
 .markdown-body h4 {
