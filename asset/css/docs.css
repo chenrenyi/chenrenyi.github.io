@@ -92,6 +92,7 @@ ul.off-canvas-list li a:hover {
 
 .sidebar .side-nav li a {
     color: #4f5959;
+    border-bottom: 2px solid transparent;
     display: initial;
 }
 
