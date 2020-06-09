@@ -71,6 +71,7 @@ ul.off-canvas-list li a:hover {
 .sidebar .side-nav li {
     margin: 0;
     padding: 0;
+    line-height: 2.25em;
 }
 
 .sidebar .side-nav a {
