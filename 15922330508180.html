@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        spring cloud 系列 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -135,122 +135,170 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>spring cloud 系列</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">服务注册</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">spring cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>提供服务的注册与查询功能</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_1">Eureka</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<p>保证cap中的ap，即可用性。<br/>
+服务注册相对要快，因为不需要等注册信息replicate到其他节点，也不保证注册信息是否replicate成功<br/>
+当数据出现不一致时，虽然A, B上的注册信息不完全相同，但每个Eureka节点依然能够正常对外提供服务，这会出现查询服务信息时如果请求A查不到，但请求B就能查到。如此保证了可用性但牺牲了一致性</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_2">Consule</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+<p>保证cap中的cp，即强一致性。<br/>
+服务注册相比Eureka会稍慢一些。因为Consul的raft协议要求必须过半数的节点都写入成功才认为注册成功<br/>
+Leader挂掉时，重新选举期间整个consul不可用。保证了强一致性但牺牲了可用性。</p>
 
-				</p>
-			</div>
- 	 
-</div>  
+<h2 id="toc_3">网关 - Api Gateway</h2>
+
+<h3 id="toc_4">介绍</h3>
+
+<p>网关：路由分发和过滤</p>
+
+<ul>
+<li>作为代理，如nginx一般转发请求到后端服务</li>
+<li>配置服务注册中心，根据服务名自动转发</li>
+<li>统一请求入口，进行公共处理，如：
+<ul>
+<li>身份认证</li>
+<li>日志记录</li>
+<li>配合限流库：hystrix，熔断限流降级依赖隔离等</li>
+<li>配合负载均衡库：ribbon，流量负载均衡</li>
+</ul></li>
+</ul>
+
+<h3 id="toc_5">zuul</h3>
+
+<p><em>路由转发</em></p>
+
+<blockquote>
+<p>与服务注册中心配置时不需要配置</p>
+</blockquote>
+
+<pre><code class="language-text">zuul:
+    routes:
+        bms-biz:
+            path: /api/bms/biz/**
+            sensitiveHeaders: Content-Length
+            url: http://bms-biz.dsg.cfpamf.com
+</code></pre>
+
+<p><em>过滤</em></p>
+
+<pre><code class="language-text">preFilter  # 转发前拦截处理
+routeFilter # 实际路由
+postFilter  # 转发后拦截处理
+</code></pre>
+
+<h3 id="toc_6">spring cloud gateway</h3>
+
+<p>同上</p>
+
+<h2 id="toc_7">网络相关</h2>
+
+<h3 id="toc_8">feign</h3>
+
+<p>http调用客户端，通过注解调用接口<br/>
+本质是 ribbon + hystrix</p>
+
+<h3 id="toc_9">ribbon</h3>
+
+<p>负载均衡，重试</p>
+
+<h3 id="toc_10">Hystrix</h3>
+
+<blockquote>
+<p>[hIst&#39;rIks](嗨斯捶克斯）</p>
+</blockquote>
+
+<p>客户端容错保护，特性有服务降级、服务熔断、请求缓存、请求合并、依赖隔离</p>
+
+<p><strong>断路器</strong></p>
+
+<pre><code class="language-text">@HystrixCommand(fallbackMethod = &quot;processHystrix_Get&quot;)
+</code></pre>
+
+<p>达到一定条件时，不再执行原方法，而改为执行 fallback 方法</p>
+
+<h2 id="toc_11">配置中心</h2>
+
+<h3 id="toc_12">spring cloud config</h3>
+
+<p>提供配置信息</p>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/06/15</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15922330840064.html"  title="Previous Post: 概念理论">&laquo; 概念理论</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15916082982624.html"
+	        title="Next Post: Docker笔记">Docker笔记 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15922330508180.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -289,6 +337,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

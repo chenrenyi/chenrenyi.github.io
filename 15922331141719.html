@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        ForkJoinPool 相关 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -135,122 +135,164 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>ForkJoinPool 相关</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">package fighting.threads;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">spring cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.*;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+/**
+ * ForkJoinPool学习
+ * 不同之处：
+ * 1、没有一个公共的任务队列，而是每个工作线程都有自己两个任务队列（外部和内部产生的子任务）
+ * 2、目的是避免处理大量短平快任务时，对公共队列任务的争抢引发性能问题。即每个任务执行都很快，但多并发情况下公共任务队列push和pop的加锁成为了瓶颈
+ *
+ * 两个作用：
+ * 1、分而治之，允许任务执行过程中，再次提交子任务，从而缩短时间
+ * 2、工作窃取，线程池中已完成的工作线程，将主动获取所有线程队列中已提交未完成的任务或子任务
+ *
+ * 对应的类：
+ * ForkJoinPool：线程池
+ * ForkJoinPool.common：全局公用的线程池
+ * ForkJoinTask：有返回值的任务
+ * ForkJoinAction：没有返回值任务
+ *
+ * 相关类：
+ * Executors.newWorkStealingPool()
+ * stream.parallelStream()
+ */
+public class ForkJoinPoolTest {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 测试入口
+     */
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ForkJoinPool pool = new ForkJoinPool(10);
+        ForkJoinTask&lt;Integer&gt; result = pool.submit(new CalcIntegerTask(0, 100000));
+        System.out.println(result.get());
+        pool.shutdown();
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+        // 通过executors创建线程池
+        Executors.newWorkStealingPool().submit(() -&gt; System.out.println(&quot;a runnable task&quot;));
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+        // parallelStream（pærəlel），默认使用 ForkJoinPool.common
+        List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        numbers.parallelStream().forEach(System.out::println);
+    }
 
-				</p>
-			</div>
- 	 
-</div>  
+}
+
+/**
+ * 数字计算任务
+ */
+class CalcIntegerTask extends RecursiveTask&lt;Integer&gt; {
+
+    private Integer start;
+
+    private Integer end;
+
+    public CalcIntegerTask(Integer start, Integer end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Integer compute() {
+        int sum = 0;
+        if (end - start &lt;= 100) {
+            // 数据量少时直接计算
+            for (int i = start; i &lt;= end; i++) {
+                sum += i;
+            }
+        } else {
+            // 数据量大时，分而治之。拆分子任务提交
+            int middle = (end - start) / 2 + start;
+            CalcIntegerTask leftTask = new CalcIntegerTask(start, middle);
+            CalcIntegerTask rightTask = new CalcIntegerTask(middle + 1, end);
+
+            // 子任务需要调用 fork 方法
+            leftTask.fork();
+            rightTask.fork();
+
+            // 使用 join 方法等待并获取值
+            sum = leftTask.join() + rightTask.join();
+        }
+
+        return sum;
+    }
+}
+
+</code></pre>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/06/15</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15922330840064.html"
+	        title="Next Post: 概念理论">概念理论 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15922331141719.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -289,6 +331,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

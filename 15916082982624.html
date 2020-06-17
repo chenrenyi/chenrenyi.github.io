@@ -21,6 +21,15 @@
     <link href="asset/highlightjs/styles/github.css" media="screen, projection" rel="stylesheet" type="text/css">
     <script>hljs.initHighlightingOnLoad();</script>
 
+    <script src="https://cdn.jsdelivr.net/npm/pangu@4.0.7/dist/browser/pangu.min.js"></script>
+    <script>
+      pangu.spacingElementByTagName('body');
+      document.addEventListener('DOMContentLoaded', () => {
+        pangu.autoSpacingPage();
+      });
+    </script>
+
+
 </head>
 <body class="antialiased hide-extras">
 
@@ -67,6 +76,12 @@
                 <li><label>学习笔记</label></li>
 
                 
+                <li><a title="ForkJoinPool 相关" href="15922331141719.html">ForkJoinPool 相关</a></li>
+                
+                <li><a title="概念理论" href="15922330840064.html">概念理论</a></li>
+                
+                <li><a title="spring cloud 系列" href="15922330508180.html">spring cloud 系列</a></li>
+                
                 <li><a title="Docker笔记" href="15916082982624.html">Docker笔记</a></li>
                 
 
@@ -101,6 +116,12 @@
 
                                     
                                     <li class="side-title"><span>学习笔记</span></li>
+                                    
+                                    <li><a title="ForkJoinPool 相关" href="15922331141719.html">ForkJoinPool 相关</a></li>
+                                    
+                                    <li><a title="概念理论" href="15922330840064.html">概念理论</a></li>
+                                    
+                                    <li><a title="spring cloud 系列" href="15922330508180.html">spring cloud 系列</a></li>
                                     
                                     <li><a title="Docker笔记" href="15916082982624.html">Docker笔记</a></li>
                                     
@@ -186,15 +207,84 @@ CMD npm run dev # 启动命令。RUN 编译镜像文件时运行，结果会打�
 <br>
 <p>3、编译生成 image 文件</p>
 
-<pre><code class="language-text">docker image build -t front-demo .      # -t 指定名字和版本号
+<pre><code class="language-bash">docker image build -t front-demo .      # -t 指定名字和版本号
 docker image ls                         # 查看
 </code></pre>
 <br>
 <p>4、运行</p>
 
-<pre><code class="language-text">docker container run -p 8000:3000 -it front-demo /bin/bash # 交互模式运行并映射端口，同时启动 /bin/bash，会覆盖 CMD 命令
+<pre><code class="language-bash">docker container run -p 8000:3000 -it front-demo /bin/bash # 交互模式运行并映射端口，同时启动 /bin/bash，会覆盖 CMD 命令
 docker container run -rm -p 8000:3000 -it front-demo /bin/bash # 运行完毕后即删除容器文件
 </code></pre>
+
+<h2 id="toc_3">真实案例：生成网站</h2>
+
+<h3 id="toc_4">mysql容器</h3>
+
+<pre><code class="language-bash">docker container run --name wordpressdb --env MYSQL_ROOT_PASSWORD=123456 --env MYSQL_DATABASE=wordpress -d mysql:5.7
+</code></pre>
+
+<h3 id="toc_5">单独php容器</h3>
+
+<p>编写Dockerfile</p>
+
+<pre><code class="language-dockerfile"># dockerfile
+FROM php:5.6-apache
+RUN docker-php-ext-install mysqli
+CMD apache2-foreground
+</code></pre>
+
+<p>制作镜像</p>
+
+<pre><code class="language-bash">docker image build -t php-demo:1.0 .
+</code></pre>
+
+<p>运行容器</p>
+
+<pre><code class="language-bash">docker run --name php-demo --rm -p 7000:80 --volume &quot;$PWD&quot;:/var/www/html --link wordpressdb:mysql php-demo:1.0
+</code></pre>
+
+<h2 id="toc_6">Docker compose</h2>
+
+<p>编写 docker-compose.yml</p>
+
+<pre><code class="language-yaml">mysql:
+  image: mysql:5.7
+  environment:
+    MYSQL_ROOT_PASSWORD: 123456
+    MYSQL_DATABASE: wordpress
+
+web:
+  image: php-demo:1.0
+  links:
+    - mysql
+  ports:
+    - &quot;7000:80&quot;
+  working_dir: /var/www/html
+  volumes:
+    - /tmp/docker-demo/wordpress:/var/www/html
+</code></pre>
+
+<p>运行</p>
+
+<pre><code class="language-text">docker-compose up
+</code></pre>
+
+<h2 id="toc_7">容器原理</h2>
+
+<h3 id="toc_8">Namespace</h3>
+
+<p>Linux的命名空间技术，用于实现进程、文件、网络等资源的隔离</p>
+
+<h3 id="toc_9">Control Groups CGroup</h3>
+
+<p>控制组，用于限制容器的 cpu、内存、网络等使用</p>
+
+<h3 id="toc_10">UnionFS</h3>
+
+<p>联合挂载技术，Dockfile的每一条文件变更命令都会产生一个 layer 层，即文件读写层。</p>
+
+<p>用于实现 docker 的镜像容器文件等的分层技术</p>
 
 
 </div>
@@ -214,6 +304,8 @@ docker container run -rm -p 8000:3000 -it front-demo /bin/bash # 运行完毕后
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
+	        <a href="15922330508180.html"  title="Previous Post: spring cloud 系列">&laquo; spring cloud 系列</a>
+	    
 	</div>
   </div>
   <div class="large-6 columns">
