@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        回溯算法 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -135,138 +135,241 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h1>回溯算法</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">框架</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>回溯问题算法框架<br/>
+for 选择 in 选择列表:<br/>
+    # 做选择<br/>
+    将该选择从选择列表移除<br/>
+    路径.add(选择)<br/>
+    backtrack(路径, 选择列表)<br/>
+    # 撤销选择<br/>
+    路径.remove(选择)<br/>
+    将该选择再加入可选列表</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">spring cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_1">全排列问题</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">package fighting.algorithm.backtrack;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+/**
+ * 全排列问题
+ */
+public class Sequence {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+    public static int answer_num = 0;
 
-				</p>
-			</div>
- 	 
-</div>  
+    /**
+     * 回溯
+     *
+     * @param numbers 用于排列的数字
+     * @param track   路径
+     */
+    public static void backtrack(List&lt;Integer&gt; numbers, LinkedList&lt;Integer&gt; track) {
+        if (numbers.size() == track.size()) {
+            System.out.println(track);
+            answer_num++;
+            return;
+        }
+
+        for (int i : numbers) {
+            // 如果该数已在路径中，忽略
+            if (track.contains(i)) {
+                continue;
+            }
+            // 做选择
+            track.add(i);
+            // 递归进入之后的选择
+            backtrack(numbers, track);
+            // 撤销选择
+            track.removeLast();
+        }
+    }
+
+    /**
+     * 测试
+     */
+    public static void main(String ars[]) {
+        List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+        numbers.add(1);
+        numbers.add(2);
+        numbers.add(3);
+        numbers.add(4);
+
+        LinkedList&lt;Integer&gt; chooseList = new LinkedList&lt;&gt;();
+
+        backtrack(numbers, chooseList);
+
+        System.out.println(answer_num);
+    }
+}
+
+</code></pre>
+
+<h2 id="toc_2">N皇后问题</h2>
+
+<pre><code class="language-java">package fighting.algorithm.backtrack;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * N皇后问题
+ */
+public class Queen {
+
+    public static final int QUEEN_NUM = 8;
+
+    public static List&lt;List&lt;List&lt;String&gt;&gt;&gt; results = new ArrayList&lt;&gt;();
+
+    public static void queen(List&lt;List&lt;String&gt;&gt; board, int row) {
+        if (row &gt;= QUEEN_NUM) {
+            List&lt;List&lt;String&gt;&gt; boardCopy = initBoard();
+            Collections.copy(boardCopy, board);
+            results.add(boardCopy);
+            return;
+        }
+        for (int column = 0; column &lt; QUEEN_NUM; column++) {
+            if (isValid(board, row, column)) {
+                board.get(row).set(column, &quot;Q&quot;);
+                queen(board, row + 1);
+                board.get(row).set(column, &quot;&quot;);
+            }
+        }
+    }
+
+    public static boolean isValid(List&lt;List&lt;String&gt;&gt; board, int row, int column) {
+        // false if q exists in the same column
+        for (int i = 0; i &lt; row; i++) {
+            if (board.get(i).get(column).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        for (int i = row - 1, j = column - 1; i &gt;= 0 &amp;&amp; j &gt;= 0; i--, j--) {
+            if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        for (int i = row - 1, j = column + 1; i &gt;= 0 &amp;&amp; j &lt; QUEEN_NUM; i--, j++) {
+            if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static List&lt;List&lt;String&gt;&gt; initBoard() {
+        List&lt;List&lt;String&gt;&gt; board = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; QUEEN_NUM; i++) {
+            board.add(new ArrayList&lt;&gt;());
+            for (int j = 0; j &lt; QUEEN_NUM; j++) {
+                board.get(i).add(&quot;&quot;);
+            }
+        }
+
+        return board;
+    }
+
+    public static void printBoard(List&lt;List&lt;String&gt;&gt; board) {
+        for (int i = 0; i &lt; QUEEN_NUM; i++) {
+            for (int j = 0; j &lt; QUEEN_NUM; j++) {
+                if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                    System.out.print(&quot; ● &quot;);
+                } else {
+                    System.out.print(&quot; ○ &quot;);
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    public static void main(String args[]) {
+        List&lt;List&lt;String&gt;&gt; board = initBoard();
+        queen(board, 0);
+
+        System.out.println(results.size());
+    }
+}
+
+</code></pre>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/06/18</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15922331141719.html"
+	        title="Next Post: ForkJoinPool 相关">ForkJoinPool 相关 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15924514980743.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -305,6 +408,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

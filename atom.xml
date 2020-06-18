@@ -4,7 +4,7 @@
   <title><![CDATA[白驼山庄]]></title>
   <link href="https://chenrenyi.github.io/atom.xml" rel="self"/>
   <link href="https://chenrenyi.github.io/"/>
-  <updated>2020-06-17T18:22:04+08:00</updated>
+  <updated>2020-06-17T18:22:06+08:00</updated>
   <id>https://chenrenyi.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -12,6 +12,181 @@
   </author>
   <generator uri="http://www.mweb.im">MWeb</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[回溯算法]]></title>
+    <link href="https://chenrenyi.github.io/15924514980743.html"/>
+    <updated>2020-06-18T11:38:18+08:00</updated>
+    <id>https://chenrenyi.github.io/15924514980743.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">框架</h2>
+
+<p>回溯问题算法框架<br/>
+for 选择 in 选择列表:<br/>
+    # 做选择<br/>
+    将该选择从选择列表移除<br/>
+    路径.add(选择)<br/>
+    backtrack(路径, 选择列表)<br/>
+    # 撤销选择<br/>
+    路径.remove(选择)<br/>
+    将该选择再加入可选列表</p>
+
+<h2 id="toc_1">全排列问题</h2>
+
+<pre><code class="language-java">package fighting.algorithm.backtrack;
+
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * 全排列问题
+ */
+public class Sequence {
+
+    public static int answer_num = 0;
+
+    /**
+     * 回溯
+     *
+     * @param numbers 用于排列的数字
+     * @param track   路径
+     */
+    public static void backtrack(List&lt;Integer&gt; numbers, LinkedList&lt;Integer&gt; track) {
+        if (numbers.size() == track.size()) {
+            System.out.println(track);
+            answer_num++;
+            return;
+        }
+
+        for (int i : numbers) {
+            // 如果该数已在路径中，忽略
+            if (track.contains(i)) {
+                continue;
+            }
+            // 做选择
+            track.add(i);
+            // 递归进入之后的选择
+            backtrack(numbers, track);
+            // 撤销选择
+            track.removeLast();
+        }
+    }
+
+    /**
+     * 测试
+     */
+    public static void main(String ars[]) {
+        List&lt;Integer&gt; numbers = new ArrayList&lt;&gt;();
+        numbers.add(1);
+        numbers.add(2);
+        numbers.add(3);
+        numbers.add(4);
+
+        LinkedList&lt;Integer&gt; chooseList = new LinkedList&lt;&gt;();
+
+        backtrack(numbers, chooseList);
+
+        System.out.println(answer_num);
+    }
+}
+
+</code></pre>
+
+<h2 id="toc_2">N皇后问题</h2>
+
+<pre><code class="language-java">package fighting.algorithm.backtrack;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+/**
+ * N皇后问题
+ */
+public class Queen {
+
+    public static final int QUEEN_NUM = 8;
+
+    public static List&lt;List&lt;List&lt;String&gt;&gt;&gt; results = new ArrayList&lt;&gt;();
+
+    public static void queen(List&lt;List&lt;String&gt;&gt; board, int row) {
+        if (row &gt;= QUEEN_NUM) {
+            List&lt;List&lt;String&gt;&gt; boardCopy = initBoard();
+            Collections.copy(boardCopy, board);
+            results.add(boardCopy);
+            return;
+        }
+        for (int column = 0; column &lt; QUEEN_NUM; column++) {
+            if (isValid(board, row, column)) {
+                board.get(row).set(column, &quot;Q&quot;);
+                queen(board, row + 1);
+                board.get(row).set(column, &quot;&quot;);
+            }
+        }
+    }
+
+    public static boolean isValid(List&lt;List&lt;String&gt;&gt; board, int row, int column) {
+        // false if q exists in the same column
+        for (int i = 0; i &lt; row; i++) {
+            if (board.get(i).get(column).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        for (int i = row - 1, j = column - 1; i &gt;= 0 &amp;&amp; j &gt;= 0; i--, j--) {
+            if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        for (int i = row - 1, j = column + 1; i &gt;= 0 &amp;&amp; j &lt; QUEEN_NUM; i--, j++) {
+            if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static List&lt;List&lt;String&gt;&gt; initBoard() {
+        List&lt;List&lt;String&gt;&gt; board = new ArrayList&lt;&gt;();
+        for (int i = 0; i &lt; QUEEN_NUM; i++) {
+            board.add(new ArrayList&lt;&gt;());
+            for (int j = 0; j &lt; QUEEN_NUM; j++) {
+                board.get(i).add(&quot;&quot;);
+            }
+        }
+
+        return board;
+    }
+
+    public static void printBoard(List&lt;List&lt;String&gt;&gt; board) {
+        for (int i = 0; i &lt; QUEEN_NUM; i++) {
+            for (int j = 0; j &lt; QUEEN_NUM; j++) {
+                if (board.get(i).get(j).equals(&quot;Q&quot;)) {
+                    System.out.print(&quot; ● &quot;);
+                } else {
+                    System.out.print(&quot; ○ &quot;);
+                }
+            }
+            System.out.println();
+        }
+        System.out.println();
+    }
+
+    public static void main(String args[]) {
+        List&lt;List&lt;String&gt;&gt; board = initBoard();
+        queen(board, 0);
+
+        System.out.println(results.size());
+    }
+}
+
+</code></pre>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[ForkJoinPool 相关]]></title>
