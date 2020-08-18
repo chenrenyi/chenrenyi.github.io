@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<h1 id="title">h1</h1>
+<article id="content">
+  content
+</article>
+<br>
+<br>
+<br>
+<h1>最新列表</h1>
+<ul id="dir">
+  <li><a href="#">title</a></li>
+</ul>
+</body>
+<script>
+  getArticleList((articleList) => {
+    console.log(articleList)
+    var dirHtml = []
+    articleList.records.forEach(a => {
+      var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ')">' + a.title + '</a></li>'
+      dirHtml.push(singleLi)
+    })
+    document.getElementById('dir').innerHTML = dirHtml
+  })
+
+  function getArticleList (callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.withCredentials = true
+
+    xhr.addEventListener('readystatechange', function () {
+      if (this.readyState === 4) {
+        callback(JSON.parse(this.responseText).data)
+      }
+    })
+
+    xhr.open('GET', 'https://admin.gbhome.com/api/v4/common/3in1/discovery?pageNum=1&pageSize=10')
+    xhr.setRequestHeader('authority', 'admin.gbhome.com')
+    xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
+    xhr.setRequestHeader('authorization', '')
+    xhr.setRequestHeader('channel', 'PC')
+    xhr.setRequestHeader('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7')
+
+    xhr.send()
+  }
+
+  function openArticle (id) {
+    getArticle(id, res => {
+      document.getElementById('content').innerHTML = res.zlArticle.detail
+      document.getElementById('title').innerHTML = res.zlArticle.title
+    })
+  }
+
+  function getArticle (id, callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.withCredentials = true
+
+    xhr.addEventListener('readystatechange', function () {
+      if (this.readyState === 4) {
+        var response = JSON.parse(this.responseText)
+        callback(response.data)
+      }
+    })
+
+    xhr.open('GET', 'https://admin.gbhome.com/api/common/zlArticle/detail/' + id)
+    xhr.setRequestHeader('authority', 'admin.gbhome.com')
+    xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
+    xhr.setRequestHeader('channel', 'PC')
+    xhr.setRequestHeader('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7')
+    xhr.send()
+  }
+
+</script>
+</html>
