@@ -14,9 +14,8 @@
 </head>
 <body>
 <h1 id="title">title</h1>
-<article id="content">
-  content
-</article>
+<img id="content">
+</img>
 <br>
 <br>
 <br>
@@ -31,7 +30,7 @@
   fetchList()
   setInterval(fetchList, 1000 * 30)
 
-  function fetchList() {
+  function fetchList () {
     getArticleList(function (articleList) {
       console.log(articleList)
       var dirHtml = []
@@ -67,13 +66,8 @@
 
   function openArticle (id, type) {
     getArticle(id, type, function (res) {
-      if (type === 'zlArticle') {
-        document.getElementById('content').innerHTML = res.zlArticle.detail
-        document.getElementById('title').innerHTML = res.zlArticle.title
-      } else if (type === 'zlTrend') {
-        document.getElementById('content').innerHTML = res.zlTrendsDto.detail
-        document.getElementById('title').innerHTML = res.zlTrendsDto.title
-      }
+      document.getElementById('content').src = 'https://yanbaoshe.oss-cn-beijing.aliyuncs.com/images/prod-gb-share_' + type + '_' + id + '.png'
+      document.getElementById('title').innerHTML = res.zlArticle.title
     })
   }
 
