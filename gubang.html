@@ -2,10 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width-device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no, minimal-ui">
   <title>Title</title>
+  <script src="https://cdn.bootcdn.net/ajax/libs/eruda/2.3.3/eruda.js"></script>
+  <script>eruda.init()</script>
 </head>
 <body>
-<h1 id="title">h1</h1>
+<h1 id="title">title</h1>
 <article id="content">
   content
 </article>
@@ -16,16 +20,19 @@
 <ul id="dir">
   <li><a href="#">title</a></li>
 </ul>
+<div id="log"></div>
 </body>
 <script>
-  getArticleList((articleList) => {
+  getArticleList(function (articleList) {
     console.log(articleList)
     var dirHtml = []
     articleList.records.forEach(a => {
-      var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ')">' + a.title + '</a></li>'
-      dirHtml.push(singleLi)
+      if (a.type === 'zlArticle') {
+        var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ')">' + a.title + '</a></li>'
+        dirHtml.push(singleLi)
+      }
     })
-    document.getElementById('dir').innerHTML = dirHtml
+    document.getElementById('dir').innerHTML = dirHtml.join('')
   })
 
   function getArticleList (callback) {
@@ -38,7 +45,7 @@
       }
     })
 
-    xhr.open('GET', 'https://admin.gbhome.com/api/v4/common/3in1/discovery?pageNum=1&pageSize=10')
+    xhr.open('GET', 'https://admin.gbhome.com/api/v4/common/3in1/discovery?pageNum=1&pageSize=30')
     xhr.setRequestHeader('authority', 'admin.gbhome.com')
     xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
     xhr.setRequestHeader('authorization', '')
@@ -49,7 +56,7 @@
   }
 
   function openArticle (id) {
-    getArticle(id, res => {
+    getArticle(id, function (res) {
       document.getElementById('content').innerHTML = res.zlArticle.detail
       document.getElementById('title').innerHTML = res.zlArticle.title
     })
@@ -61,6 +68,7 @@
 
     xhr.addEventListener('readystatechange', function () {
       if (this.readyState === 4) {
+        alert(this.responseText)
         var response = JSON.parse(this.responseText)
         callback(response.data)
       }
@@ -73,6 +81,5 @@
     xhr.setRequestHeader('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7')
     xhr.send()
   }
-
 </script>
 </html>
