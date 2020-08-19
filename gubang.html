@@ -27,17 +27,23 @@
 <div id="log"></div>
 </body>
 <script>
-  getArticleList(function (articleList) {
-    console.log(articleList)
-    var dirHtml = []
-    articleList.records.forEach(a => {
-      if (a.type === 'zlArticle') {
-        var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ')">' + a.title + '</a></li>'
-        dirHtml.push(singleLi)
-      }
+
+  fetchList()
+  setInterval(fetchList, 1000 * 30)
+
+  function fetchList() {
+    getArticleList(function (articleList) {
+      console.log(articleList)
+      var dirHtml = []
+      articleList.records.forEach(a => {
+        if (a.type === 'zlArticle' || a.type === 'zlTrend') {
+          var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ', \'' + a.type + '\')">' + a.title + '</a></li>'
+          dirHtml.push(singleLi)
+        }
+      })
+      document.getElementById('dir').innerHTML = dirHtml.join('')
     })
-    document.getElementById('dir').innerHTML = dirHtml.join('')
-  })
+  }
 
   function getArticleList (callback) {
     var xhr = new XMLHttpRequest()
@@ -59,14 +65,19 @@
     xhr.send()
   }
 
-  function openArticle (id) {
-    getArticle(id, function (res) {
-      document.getElementById('content').innerHTML = res.zlArticle.detail
-      document.getElementById('title').innerHTML = res.zlArticle.title
+  function openArticle (id, type) {
+    getArticle(id, type, function (res) {
+      if (type === 'zlArticle') {
+        document.getElementById('content').innerHTML = res.zlArticle.detail
+        document.getElementById('title').innerHTML = res.zlArticle.title
+      } else if (type === 'zlTrend') {
+        document.getElementById('content').innerHTML = res.zlTrendsDto.detail
+        document.getElementById('title').innerHTML = res.zlTrendsDto.title
+      }
     })
   }
 
-  function getArticle (id, callback) {
+  function getArticle (id, type, callback) {
     var xhr = new XMLHttpRequest()
     xhr.withCredentials = true
 
@@ -77,7 +88,7 @@
       }
     })
 
-    xhr.open('GET', 'https://admin.gbhome.com/api/common/zlArticle/detail/' + id)
+    xhr.open('GET', 'https://admin.gbhome.com/api/common/' + type + '/detail/' + id)
     xhr.setRequestHeader('authority', 'admin.gbhome.com')
     xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
     xhr.setRequestHeader('channel', 'PC')
