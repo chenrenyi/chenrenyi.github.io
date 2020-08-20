@@ -76,6 +76,8 @@
                 <li><label>学习笔记</label></li>
 
                 
+                <li><a title="消息队列" href="15972372249797.html">消息队列</a></li>
+                
                 <li><a title="ForkJoinPool 相关" href="15922331141719.html">ForkJoinPool 相关</a></li>
                 
                 <li><a title="概念理论" href="15922330840064.html">概念理论</a></li>
@@ -125,6 +127,8 @@
                                     
                                     <li class="side-title"><span>学习笔记</span></li>
                                     
+                                    <li><a title="消息队列" href="15972372249797.html">消息队列</a></li>
+                                    
                                     <li><a title="ForkJoinPool 相关" href="15922331141719.html">ForkJoinPool 相关</a></li>
                                     
                                     <li><a title="概念理论" href="15922330840064.html">概念理论</a></li>
@@ -153,15 +157,18 @@
 
 <h2 id="toc_0">框架</h2>
 
-<p>回溯问题算法框架<br/>
-for 选择 in 选择列表:<br/>
-    # 做选择<br/>
-    将该选择从选择列表移除<br/>
-    路径.add(选择)<br/>
-    backtrack(路径, 选择列表)<br/>
-    # 撤销选择<br/>
-    路径.remove(选择)<br/>
-    将该选择再加入可选列表</p>
+<pre><code class="language-text">回溯问题算法框架
+result = []
+def backtrack(路径, 选择列表):
+    if 满足结束条件:
+        result.add(路径)
+        return
+
+    for 选择 in 选择列表:
+        做选择
+        backtrack(路径, 选择列表)
+        撤销选择
+</code></pre>
 
 <h2 id="toc_1">全排列问题</h2>
 
@@ -335,6 +342,8 @@ public class Queen {
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
+	        <a href="15972372249797.html"  title="Previous Post: 消息队列">&laquo; 消息队列</a>
+	    
 	</div>
   </div>
   <div class="large-6 columns">
