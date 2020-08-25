@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        Spring - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,426 +221,230 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15981744394317.html">分布式</a></h3>
-				<p>
-					<time datetime="2020-08-23T17:20:39+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>Spring</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981529091955.html">运维相关</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:21:49+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">介绍</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981528120452.html">网络</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:20:12+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>Spring的核心是IOC容器和AOP支持，通过IOC容器管理各种类，通过AOP增强服务</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981504896199.html">LRU（last recent used）</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:41:29+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_1">IOC 控制反转</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981499416448.html">表达式求值</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:32:21+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<p>概述：Inversion of Control</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981493832715.html">BFS（广度优先搜索）问题</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:23:03+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<p>控制指的是：当前对象对内部成员的控制权。</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981488069038.html">动态规则笔记</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:13:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<p>反转指的是：这种控制权不由当前对象管理了，由其他(类,第三方容器)来管理</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025908754.html">安全</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:23:10+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>实现途径：依赖查找，依赖注入</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025270346.html">Zookeeper</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:22:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p><strong>优点</strong>：</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981005517872.html">Linux</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:49:11+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>不用自己组装，拿来就用。</li>
+<li>享受单例的好处，效率高，不浪费空间。</li>
+<li>便于单元测试，方便切换mock组件。</li>
+<li>便于进行AOP操作，对于使用者是透明的。</li>
+<li>统一配置，便于修改。</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980994076315.html">Redis</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:30:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_2">DI 依赖注入</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980950267265.html">Spring</a></h3>
-				<p>
-					<time datetime="2020-08-22T19:17:06+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>Dependency injection</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980814209679.html">Java Jvm</a></h3>
-				<p>
-					<time datetime="2020-08-22T15:30:20+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>就是传入一个实例给一个对象</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980740537693.html">Java并发</a></h3>
-				<p>
-					<time datetime="2020-08-22T13:27:33+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_3">AOP 切面编程</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980638067464.html">Java基础</a></h3>
-				<p>
-					<time datetime="2020-08-22T10:36:46+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>将业务逻辑与样板逻辑分开，实现逻辑的组合，实现原理：动态代理</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980143464972.html">树</a></h3>
-				<p>
-					<time datetime="2020-08-21T20:52:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>21</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_4">动静态代理</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15979335853537.html">数据库</a></h3>
-				<p>
-					<time datetime="2020-08-20T22:26:25+08:00" pubdate><span class='month'>8月</span> <span class='day'>20</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>静态代理
+<ul>
+<li>就是改代码，用代理模式在代码里面写死</li>
+</ul></li>
+<li>动态代理
+<ul>
+<li>使用 java.lang.reflect.Proxy</li>
+<li>只能代理接口</li>
+<li>使用反射所以性能不太好</li>
+</ul></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15972372249797.html">消息队列</a></h3>
-				<p>
-					<time datetime="2020-08-12T21:00:24+08:00" pubdate><span class='month'>8月</span> <span class='day'>12</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">package com.proxy;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+public class ProxyFactory {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    private Object target;// 维护一个目标对象
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">Spring Cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    public ProxyFactory(Object target) {
+        this.target = target;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    // 为目标对象生成代理对象
+    public Object getProxyInstance() {
+        return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(),
+                new InvocationHandler() {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        System.out.println(&quot;开启事务&quot;);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+                        // 执行目标对象方法
+                        Object returnValue = method.invoke(target, args);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+                        System.out.println(&quot;提交事务&quot;);
+                        return null;
+                    }
+                });
+    }
+}
+</code></pre>
 
-				</p>
-			</div>
- 	 
-</div>  
+<ul>
+<li>cglib代理
+<ul>
+<li>cglib (Code Generation Library )是一个第三方代码生成类库，运行时在内存中动态生成一个子类对象从而实现对目标对象功能的扩展</li>
+<li>优点：解决动态代理只能代理实现接口的类的问题，生成实际子类和字节码故性能优于动态代理</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_5">循环依赖</h2>
+
+<p>A的实例依赖B，B的实例依赖A</p>
+
+<h5 id="toc_6">解决办法：</h5>
+
+<ul>
+<li>惰性加载，需要的时候再加载进行</li>
+<li>Spring默认解决办法：
+<ul>
+<li>创建A但不初始化，创建并初始化B，此时B拥有的是A的未初始化的引用。实例化B后，再回来初始化A</li>
+<li>当前创建bean池：创建过程中一直保持在池里面，用于判断是否循环依赖</li>
+<li>三级缓存：
+<ul>
+<li>三级：进入实例化阶段的单例对象工厂的cache</li>
+<li>二级：已创建未初始化</li>
+<li>一级：已实例化</li>
+</ul></li>
+<li>创建过程：
+<ul>
+<li>A创建到一半，将自己置于三级缓存中，发现依赖B。转而创建B，并一级一级找A缓存，创建B完成后回到A的创建过程继续</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2 id="toc_7">杂项</h2>
+
+<h3 id="toc_8">AutoWire与Resource</h3>
+
+<ul>
+<li>autowire：按类型注入，spring提供的注解</li>
+<li>resource：按名称注入，java自带，也支持输入参数按类型。找不到时层层退化<br/></li>
+<li>@Qualifier：存在多个同类型bean时，可以使用它来作区分</li>
+</ul>
+
+<h3 id="toc_9">bean的作用域</h3>
+
+<ul>
+<li><p>singleton : bean在每个Spring ioc 容器中只有一个实例。</p></li>
+<li><p>prototype：一个bean的定义可以有多个实例。</p></li>
+<li><p>request：每次http请求都会创建一个bean，该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+<li><p>session：在一个HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+<li><p>global-session：在一个全局的HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+</ul>
+
+<h3 id="toc_10">事务传播机制</h3>
+
+<pre><code class="language-text">① PROPAGATION_REQUIRED：如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。
+
+② PROPAGATION_SUPPORTS：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
+
+③ PROPAGATION_MANDATORY：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
+
+④ PROPAGATION_REQUIRES_NEW：创建新事务，无论当前存不存在事务，都创建新事务。
+
+⑤ PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+
+⑥ PROPAGATION_NEVER：以非事务方式执行，如果当前存在事务，则抛出异常。
+
+⑦ PROPAGATION_NESTED：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则按REQUIRED属性执行。
+</code></pre>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/08/22</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15922331141719.html"  title="Previous Post: ForkJoinPool 相关">&laquo; ForkJoinPool 相关</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15922330508180.html"
+	        title="Next Post: Spring Cloud 系列">Spring Cloud 系列 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15980950267265.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -679,6 +483,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        第一篇文章 - 白驼山庄
+        Java Jvm - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,24 +221,472 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-<h1>第一篇文章</h1>
+<h1>Java Jvm</h1>
 
-<p>因新冠肺炎疫情呆在家里的第 26 天，闲来无事第 n 次搭建博客，写下同样第 n 次的开篇文章。</p>
+<h2 id="toc_0">组成</h2>
 
-<span id="more"></span><!-- more -->
+<h3 id="toc_1">JVM组成</h3>
 
-<p>这一次用的 Mweb（页脚权限声明那有官网链接），Mac 上一个 Markdown 写作软件，自带静态博客创建和发布功能，支持自定义发布脚本。日常在编辑器书写，完成后一键发布即可。</p>
+<p>两个子系统：</p>
 
-<p>当然了，这软件是收费的。国内开发者，做得挺用心。比如我个人很喜欢的一个小功能是，“在中文和半角的英文、数字之间插入空格”，Github 上也有开源实现，称呼这种空格为盘古白，各编程语言版本都有。与 Word 和手机微信的聊天框显示效果类似。其实代码实现并不复杂，但能从中一窥作者对排版和用户体验的细节追求。</p>
+<ul>
+<li>类加载</li>
+<li>执行引擎</li>
+</ul>
 
-<p>有缘看到的兄弟可以试试。如果软件作者看到了，记得给我打钱啊😆</p>
+<p>两个组件：</p>
+
+<ul>
+<li>运行时数据区 - JVM内存区域</li>
+<li>本地方法接口</li>
+</ul>
+
+<p><img src="https://img-blog.csdnimg.cn/20200103213149526.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly90aGlua3dvbi5ibG9nLmNzZG4ubmV0,size_16,color_FFFFFF,t_70" alt=""/></p>
+
+<h3 id="toc_2">JVM内存结构 - 运行时数据区 组成</h3>
+
+<h4 id="toc_3">概述</h4>
+
+<ul>
+<li>堆内存
+<ul>
+<li>年轻代
+<ul>
+<li>edenSpace</li>
+<li>FromSpace</li>
+<li>ToSpace</li>
+</ul></li>
+<li>老年代</li>
+</ul></li>
+<li>方法区
+<ul>
+<li>线程共享，保存类、常量、静态变量等数据</li>
+</ul></li>
+<li>虚拟机栈</li>
+<li>本地方法栈</li>
+<li>程序计数器</li>
+</ul>
+
+<p><img src="media/15980814209679/15980817654033.jpg" alt=""/></p>
+
+<p><img src="media/15980814209679/15980819260266.jpg" alt=""/></p>
+
+<p>大小参数控制：</p>
+
+<ul>
+<li>-Xms设置堆的最小空间大小。</li>
+<li>-Xmx设置堆的最大空间大小。</li>
+<li>-XX:NewSize设置新生代最小空间大小。</li>
+<li>-XX:MaxNewSize设置新生代最大空间大小。</li>
+<li>-XX:PermSize设置永久代最小空间大小。</li>
+<li>-XX:MaxPermSize设置永久代最大空间大小。</li>
+<li>-Xss设置每个线程的堆栈大小。</li>
+</ul>
+
+<h4 id="toc_4">堆</h4>
+
+<p>几乎所有的对象实例都在这里分配内存</p>
+
+<h4 id="toc_5">方法区</h4>
+
+<p>各线程共享</p>
+
+<p><strong>1.6及之前版本</strong></p>
+
+<ul>
+<li>类信息、类方法等</li>
+<li>运行时常量池（包含字符串常量池）</li>
+<li>静态变量和全局变量等</li>
+<li>符号引用</li>
+</ul>
+
+<p><strong>1.7版本</strong></p>
+
+<ul>
+<li>静态变量和字符串常量池被移到堆中</li>
+<li>符号引用被移到本地堆中</li>
+</ul>
+
+<p><strong>1.8版本</strong></p>
+
+<ul>
+<li>基本上只包含类信息</li>
+</ul>
+
+<p><img src="media/15980814209679/15980825256187.jpg" alt=""/></p>
+
+<h4 id="toc_6">程序计数器</h4>
+
+<p>同汇编中的 PC 寄存器，存储下一条要执行的指令位置，理论上每个线程需要有一个</p>
+
+<h4 id="toc_7">JVM栈</h4>
+
+<p>每个方法被执行的时候都会同时创建一个栈帧（Stack Frame）用于存储局部变量表、操作栈、动态链接、方法出口等信息。</p>
+
+<p>每一个方法被调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中从入栈到出栈的过程。</p>
+
+<p><strong>局部变量表</strong></p>
+
+<ul>
+<li>基本类型的局部变量</li>
+<li>非基本类型对象的引用指针</li>
+</ul>
+
+<h4 id="toc_8">关于永久代、方法区、元空间</h4>
+
+<p><strong>1.7 版本前：</strong></p>
+
+<p>从HotSpot虚拟机实现上来说，方法区存在于永久代中。从规范上来讲没有永久代这一概念。</p>
+
+<p>永久代的历史原因是：HotSpot虚拟机的实现上，无论老年代、还是方法区内存满了，都会触发方法区和老年代的GC，因此称之为永久代</p>
+
+<p>永久代与堆隔离，但物理内存上连续</p>
+
+<p><strong>1.8 版本：</strong></p>
+
+<p>方法区存在于元空间中，元空间存在于本地内存中</p>
+
+<ul>
+<li><p>-XX:MetaspaceSize，class metadata的初始空间配额，以bytes为单位，达到该值就会触发垃圾收集进行类型卸载，同时GC会对该值进行调整：如果释放了大量的空间，就适当的降低该值；如果释放了很少的空间，那么在不超过MaxMetaspaceSize（如果设置了的话），适当的提高该值。</p></li>
+<li><p>-XX：MaxMetaspaceSize，可以为class metadata分配的最大空间。默认是没有限制的。</p></li>
+<li><p>-XX：MinMetaspaceFreeRatio，在GC之后，最小的Metaspace剩余空间容量的百分比，减少为class metadata分配空间导致的垃圾收集。</p></li>
+<li><p>-XX:MaxMetaspaceFreeRatio，在GC之后，最大的Metaspace剩余空间容量的百分比，减少为class metadata释放空间导致的垃圾收集。</p></li>
+</ul>
+
+<p><strong>为什么替代</strong></p>
+
+<p>旧方法中，永久代大小由 -XX:PermSize，-XX:MaxPermSize指定，无法准确知道该设置的合适值。</p>
+
+<p>新方法中，元空间移到了本地内存，可以由系统实际剩余内存控制</p>
+
+<h2 id="toc_9">类加载机制</h2>
+
+<p><img src="https://img-blog.csdnimg.cn/2020031416414486.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1RoaW5rV29u,size_16,color_FFFFFF,t_70" alt=""/></p>
+
+<h4 id="toc_10">加载过程</h4>
+
+<p><img src="media/15980814209679/15980830126011.jpg" alt=""/></p>
+
+<p><strong>加载：加载对应的.class文件，并分配内存和对象</strong></p>
+
+<ul>
+<li><p>通过一个类的全限定名来获取其定义的二进制字节流。</p></li>
+<li><p>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</p></li>
+<li><p>在Java堆中生成一个代表这个类的 java.lang.Class对象，作为对方法区中这些数据的访问入口。</p></li>
+</ul>
+
+<p><strong>验证：验证类格式是否合法</strong></p>
+
+<ul>
+<li><p>文件格式验证：验证字节流是否符合Class文件格式的规范；例如：是否以 0xCAFEBABE开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。</p></li>
+<li><p>元数据验证：对字节码描述的信息进行语义分析（注意：对比javac编译阶段的语义分析），以保证其描述的信息符合Java语言规范的要求；例如：这个类是否有父类，除了 java.lang.Object之外。</p></li>
+<li><p>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。</p></li>
+<li><p>符号引用验证：确保解析动作能正确执行。</p></li>
+</ul>
+
+<p><strong>准备：为类的静态变量分配内存，并将其初始化为默认值</strong></p>
+
+<ul>
+<li><p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：</p></li>
+<li><p>这时候进行内存分配的仅包括类变量（static），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。</p></li>
+<li><p>这里所设置的初始值通常情况下是数据类型默认的零值（如0、0L、null、false等），而不是被在Java代码中被显式地赋予的值</p></li>
+<li><p>public static int value = 3，准备后其值为 0</p></li>
+<li><p>public final static int value = 3，准备后其值为 3</p></li>
+</ul>
+
+<p><strong>解析：把类中的符号引用转换为直接引用</strong></p>
+
+<ul>
+<li><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号引用进行。符号引用就是一组符号来描述目标，可以是任何字面量。</p></li>
+<li><p>直接引用就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄</p></li>
+</ul>
+
+<p><strong>初始化：为静态成员变量赋予初始值</strong></p>
+
+<p>初始化，为类的<strong>静态变量</strong>赋予正确的初始值，JVM负责对类进行初始化，主要对类变量进行初始化。在Java中对类变量进行初始值设定有两种方式：</p>
+
+<ol>
+<li>声明类变量是指定初始值</li>
+<li>使用静态代码块为类变量指定初始值</li>
+</ol>
+
+<p>JVM初始化步骤</p>
+
+<ol>
+<li>假如这个类还没有被加载和连接，则程序先加载并连接该类</li>
+<li>假如该类的直接父类还没有被初始化，则先初始化其直接父类</li>
+<li>假如类中有初始化语句，则系统依次执行这些初始化语句</li>
+</ol>
+
+<p>类初始化时机：只有当对类的主动使用的时候才会导致类的初始化，类的主动使用包括以下六种：</p>
+
+<ul>
+<li>创建类的实例，也就是new的方式</li>
+<li>访问某个类或接口的静态变量，或者对该静态变量赋值</li>
+<li>调用类的静态方法</li>
+<li>反射（如 Class.forName(“com.shengsiyuan.Test”)）</li>
+<li>初始化某个类的子类，则其父类也会被初始化</li>
+<li>Java虚拟机启动时被标明为启动类的类（ JavaTest），直接使用 java.exe命令来运行某个主类</li>
+</ul>
+
+<p><strong>注意</strong><br/>
+类的非静态成员变量，只有在创建实例时，才会被初始化到堆中</p>
+
+<h4 id="toc_11">加载器</h4>
+
+<p><img src="media/15980814209679/15980841148150.jpg" alt=""/></p>
+
+<p><strong>启动类加载器</strong>： BootstrapClassLoader，加载虚拟机类库，本地方法<br/>
+<strong>扩展类加载器</strong>： ExtensionClassLoader，加载系统类库<br/>
+<strong>应用程序类加载器</strong>：ApplicationClassLoader，加载用户类的路径</p>
+
+<h4 id="toc_12">加载机制</h4>
+
+<p><strong>全盘负责</strong><br/>
+当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入</p>
+
+<p><strong>双亲委派</strong><br/>
+先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类</p>
+
+<p><strong>缓存机制</strong><br/>
+缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效</p>
+
+<h2 id="toc_13">垃圾回收算法</h2>
+
+<h3 id="toc_14">对象存活判断</h3>
+
+<p><strong>引用计数</strong>：<br/>
+有循环引用问题</p>
+
+<p><strong>可达性分析</strong><br/>
+GC Roots：</p>
+
+<ul>
+<li>虚拟机栈中引用的对象。</li>
+<li>本地方法栈中JNI引用的对象。</li>
+<li>方法区中类静态属性实体引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+</ul>
+
+<h3 id="toc_15">垃圾收集算法</h3>
+
+<h4 id="toc_16">标记 - 清除算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>标记不需要的对象</li>
+<li>清除</li>
+</ul>
+
+<p>特点：</p>
+
+<ul>
+<li>标记效率不高</li>
+<li>清除后产生大量内存碎片</li>
+</ul>
+
+<h4 id="toc_17">复制算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>内存分为两块</li>
+<li>将一块中的存活对象，复制到另一半</li>
+</ul>
+
+<p>特点：</p>
+
+<ul>
+<li>没有内存碎片</li>
+<li>内存利用率不高</li>
+<li>存活对象多时要复制大量数据，性能慢。适合于新生代，存活对象很少的情况</li>
+</ul>
+
+<h4 id="toc_18">标记 - 压缩/整理算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>标记</li>
+<li>向一端移动</li>
+</ul>
+
+<h4 id="toc_19">分代收集算法</h4>
+
+<p>即根据新生代、老年代特性，采用不同的收集算法</p>
+
+<h3 id="toc_20">垃圾收集器</h3>
+
+<h4 id="toc_21">Serial收集器</h4>
+
+<p>最古老版本</p>
+
+<p>特点：</p>
+
+<ul>
+<li>单线程回收</li>
+<li>新生代复制，老年代标记-压缩</li>
+<li>过程中 STW</li>
+</ul>
+
+<p>使用：-XX:+UseSerialGC</p>
+
+<h4 id="toc_22">ParNew收集器</h4>
+
+<p>Serial收集器并行版本</p>
+
+<p>特点：</p>
+
+<ul>
+<li>新生代多线程复制</li>
+<li>老年代串行标记-压缩</li>
+</ul>
+
+<p>使用：-XX:+UseParNewGC</p>
+
+<h4 id="toc_23">Parallel</h4>
+
+<p>类似于ParNew，更关注系统吞吐量</p>
+
+<p>可以通过参数来打开自适应调节策略，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或最大的吞吐量；也可以通过参数控制GC的时间不大于多少毫秒或者比例；新生代复制算法、老年代标记-压缩</p>
+
+<p>使用：-XX:+UseParallelGC 老年代串行</p>
+
+<h4 id="toc_24">Parallel Old 收集器</h4>
+
+<p>Parallel的老年代版本，老年代并行标记 - 压缩</p>
+
+<p>使用：-XX:+UseParallelOldGC 使用Parallel收集器 + 老年代并行</p>
+
+<h4 id="toc_25">CMS收集器</h4>
+
+<p>Concurrent Mark Sweep：并行标记清除</p>
+
+<p>目标：追求最短停顿时间</p>
+
+<p>过程：</p>
+
+<ul>
+<li>触发条件
+<ul>
+<li>老年代、永久代使用率达到92%</li>
+<li>新生代没有足够的空间晋升为老年代</li>
+</ul></li>
+<li>初始标记
+<ul>
+<li>STW</li>
+<li>标记GC roots直接关联的老年代对象、标记新生代可达的老年代对象</li>
+<li>速度快</li>
+</ul></li>
+<li>并发标记
+<ul>
+<li>递归标记上一步骤中，已标记对象的内部可引用对象</li>
+<li>并发标记过程中发生变化的，记号为dirty</li>
+<li>时间长，但并发执行</li>
+</ul></li>
+<li>并发预清理
+<ul>
+<li>标记新生代中的新出现对象引用的老年代对象，新晋升的老年代对象</li>
+<li>扫描上一阶段中的dirty对象，重新处理</li>
+<li>循环直至达到最大循环次数（默认无），最长时间（默认5秒）</li>
+<li>目的是尽量减少下一阶段的暂停时间</li>
+</ul></li>
+<li>重新标记
+<ul>
+<li>STW</li>
+<li>修正并发标记期间，因程序运作导致的误差
+<ul>
+<li>重新扫描新生代</li>
+<li>重新扫码GC roots可达对象</li>
+<li>处理标记为dirty的对象</li>
+</ul></li>
+<li>时间中等</li>
+</ul></li>
+<li>并发清除
+<ul>
+<li>不会STW</li>
+</ul></li>
+</ul>
+
+<p>优点：</p>
+
+<ul>
+<li>并发收集，低停顿</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+<li>标记 - 清除算法会产生大量碎片、并发阶段会降低吞吐量</li>
+</ul>
+
+<p>参数使用：</p>
+
+<ul>
+<li>-XX:+UseConcMarkSweepGC 使用CMS收集器</li>
+<li>-XX:+ UseCMSCompactAtFullCollection Full GC后，进行一次碎片整理；整理过程是独占的，会引起停顿时间变长</li>
+<li>-XX:+CMSFullGCsBeforeCompaction 设置进行几次Full GC后，进行一次碎片整理</li>
+<li>-XX:ParallelCMSThreads 设定CMS的线程数量（一般情况约等于可用CPU数量）</li>
+</ul>
+
+<h4 id="toc_26">G1收集器</h4>
+
+<p>特点：</p>
+
+<ul>
+<li>标记 - 压缩，不会产生碎片</li>
+<li>将内存划分为若干区域，新生代、老年代等是各个区域的组合</li>
+<li>每个区块一个rememberd set，记录进入的指针</li>
+<li>预测各区块的回收时间，回收部分区块，从而达到可预测时间的目的</li>
+</ul>
+
+<p><img src="media/15980814209679/15980908684125.jpg" alt=""/></p>
+
+<p><img src="media/15980814209679/15981482084026.jpg" alt=""/></p>
+
+<h3 id="toc_27">GC调优工具</h3>
+
+<h4 id="toc_28">自带图形工具</h4>
+
+<ul>
+<li>jconsole</li>
+<li>jvisualvm</li>
+</ul>
+
+<h4 id="toc_29">命令行工具</h4>
+
+<ul>
+<li><p>jps：打印java process status</p>
+<p><img src="media/15980814209679/15980939009037.jpg" alt="" style="width:303px;"/></p></li>
+<li><p>jstat：</p>
+<ul>
+<li>JVM statistics Monitoring</li>
+<li>用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据</li>
+</ul></li>
+</ul>
+
+<p><img src="media/15980814209679/15980939723822.jpg" alt="" style="width:411px;"/></p>
+
+<ul>
+<li>jmap：生成堆快照</li>
+<li>jhat：分析堆快照</li>
+<li>jstack：生成线程快照</li>
+<li>jinfo：查看虚拟机参数</li>
+</ul>
+
+<h4 id="toc_30">GC优化</h4>
+
+<ul>
+<li>-Xms -Xmx调整初始堆大小和最大堆大小适配机器内存大小</li>
+</ul>
 
 
 </div>
 
 <br />
 <div class="text-right" style="color: #22222282">
-	<span class="date" style="margin-right: 10px">发布于 2020/02/16</span>
+	<span class="date" style="margin-right: 10px">发布于 2020/08/22</span>
 	<span id="busuanzi_container_page_pv">
 		浏览
 	<span id="busuanzi_value_page_pv"></span> 次
@@ -251,15 +699,15 @@
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
-	        <a href="15827936185226.html"  title="Previous Post: iText 生僻字显示设置与汉字数字化">&laquo; iText 生僻字显示设置与汉字数字化</a>
+	        <a href="15980740537693.html"  title="Previous Post: Java并发">&laquo; Java并发</a>
 	    
 	</div>
   </div>
   <div class="large-6 columns">
 	<div class="text-right" style="padding:15px 0px;">
 		
-	        <a href="15981025908754.html"
-	        title="Next Post: 安全">安全 &raquo;</a>
+	        <a href="15922331141719.html"
+	        title="Next Post: ForkJoinPool 相关">ForkJoinPool 相关 &raquo;</a>
 	    
 	</div>
   </div>
@@ -273,7 +721,7 @@
 </div>
 <script type="text/javascript">
 	$(function(){
-		var currentURL = '15818551802185.html';
+		var currentURL = '15980814209679.html';
 		$('#side-nav a').each(function(){
 			if($(this).attr('href') == currentURL){
 				$(this).parent().addClass('active');

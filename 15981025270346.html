@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        Zookeeper - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,426 +221,271 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15981744394317.html">分布式</a></h3>
-				<p>
-					<time datetime="2020-08-23T17:20:39+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>Zookeeper</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981529091955.html">运维相关</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:21:49+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>分布式协调框架</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981528120452.html">网络</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:20:12+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">场景</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981504896199.html">LRU（last recent used）</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:41:29+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>数据发布/订阅（配置中心）
+<ul>
+<li>树形结构且节点可存储数据，天然配置中心。</li>
+<li>关注节点以接收通知，然后可以动态获取配置信息</li>
+</ul></li>
+<li>命名服务 / 负载均衡
+<ul>
+<li>生成全局唯一ID</li>
+</ul></li>
+<li>分布式协调/通知</li>
+<li>心跳检测
+<ul>
+<li>A服务创建临时节点，A关闭后临时节点即断掉</li>
+<li>B服务查看有多少临时节点，即知道有多少服务活着</li>
+</ul></li>
+<li>集群管理</li>
+<li>Master选举
+<ul>
+<li>选举时，各备选机器创建一个相同临时的znode</li>
+<li>谁创建成功，谁成为master</li>
+<li>失败的，关注该节点</li>
+<li>若master挂掉，其余节点能够立刻感知，从而重新选举</li>
+</ul></li>
+<li>分布式锁和分布式队列
+<ul>
+<li>排它锁
+<ul>
+<li>临时znode，满足只有一个事务可以获得锁，释放后能通知的功能</li>
+</ul></li>
+<li>共享锁
+<ul>
+<li>创建临时有序znode，value标记为 写、读</li>
+<li>获取读锁：若比当前节点序号小的都是读锁，则认为获取成功</li>
+<li>获取写锁：若自己就是最小节点，则认为获取成功</li>
+<li>否则注册监听事件</li>
+</ul></li>
+</ul></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981499416448.html">表达式求值</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:32:21+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_1">保证的特性</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981493832715.html">BFS（广度优先搜索）问题</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:23:03+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>顺序一致性
+<ul>
+<li>同一客户端发起的请求，会按顺序应用到服务器</li>
+</ul></li>
+<li>原子性
+<ul>
+<li>事务结果在所有机器上一样</li>
+</ul></li>
+<li>单一视图
+<ul>
+<li>客户端连接任意服务器，看到的结果一样</li>
+</ul></li>
+<li>可靠性
+<ul>
+<li>持久化</li>
+</ul></li>
+<li>实时性
+<ul>
+<li>在一定的时候内，能看到最新的数据</li>
+</ul></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981488069038.html">动态规则笔记</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:13:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_2">集群角色</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025908754.html">安全</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:23:10+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>Leader</li>
+<li>Follower</li>
+<li>Observer
+<ul>
+<li>默认无该角色</li>
+<li>可提供读，不提供写</li>
+<li>不参与写的过半写成功策略</li>
+<li>不参与 Leader 选举</li>
+<li>作用：在不影响写的性能下，增加读性能</li>
+</ul></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025270346.html">Zookeeper</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:22:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_3">数据</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981005517872.html">Linux</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:49:11+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-text">[zk: localhost:2181(CONNECTED) 23] get /yarn-leader-election/appcluster-yarn/ActiveBreadCrumb
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980994076315.html">Redis</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:30:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+appcluster-yarnrm1
+cZxid = 0x1b00133dc0    //Created ZXID,表示该ZNode被创建时的事务ID
+ctime = Tue Jan 03 15:44:42 CST 2017    //Created Time,表示该ZNode被创建的时间
+mZxid = 0x1d00000063    //Modified ZXID，表示该ZNode最后一次被更新时的事务ID
+mtime = Fri Jan 06 08:44:25 CST 2017    //Modified Time，表示该节点最后一次被更新的时间
+pZxid = 0x1b00133dc0    //表示该节点的子节点列表最后一次被修改时的事务ID。注意，只有子节点列表变更了才会变更pZxid，子节点内容变更不会影响pZxid。
+cversion = 0    //子节点的版本号
+dataVersion = 11    //数据节点的版本号
+aclVersion = 0    //ACL版本号
+ephemeralOwner = 0x0    //创建该节点的会话的seddionID。如果该节点是持久节点，那么这个属性值为0。
+dataLength = 22    //数据内容的长度
+numChildren = 0    //子节点的个数
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980950267265.html">Spring</a></h3>
-				<p>
-					<time datetime="2020-08-22T19:17:06+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_4">其它概念</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980814209679.html">Java Jvm</a></h3>
-				<p>
-					<time datetime="2020-08-22T15:30:20+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_5">Watcher</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980740537693.html">Java并发</a></h3>
-				<p>
-					<time datetime="2020-08-22T13:27:33+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-text">Watcher（事件监听器），是ZooKeeper中一个很重要的特性。
+ZooKeeper允许用户在指定节点上注册一些Watcher，并且在一些特定事件触发的时候，ZooKeeper服务端会将事件通知到感兴趣的客户端上去。
+该机制是ZooKeeper实现分布式协调服务的重要特性。
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980638067464.html">Java基础</a></h3>
-				<p>
-					<time datetime="2020-08-22T10:36:46+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_6">事务</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980143464972.html">树</a></h3>
-				<p>
-					<time datetime="2020-08-21T20:52:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>21</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>能改变zookeeper服务器状态的称为事务，如节点创建、删除、更新等。事务号为zxid</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15979335853537.html">数据库</a></h3>
-				<p>
-					<time datetime="2020-08-20T22:26:25+08:00" pubdate><span class='month'>8月</span> <span class='day'>20</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_7">ACL</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15972372249797.html">消息队列</a></h3>
-				<p>
-					<time datetime="2020-08-12T21:00:24+08:00" pubdate><span class='month'>8月</span> <span class='day'>12</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>access control Lists 控制权限</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>CREATE: 创建子节点的权限。</li>
+<li>READ: 获取节点数据和子节点列表的权限。</li>
+<li>WRITE：更新节点数据的权限。</li>
+<li>DELETE: 删除子节点的权限。</li>
+<li>ADMIN: 设置节点ACL的权限。</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_8">ZAB协议</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-text">所有事务请求必须由一个全局唯一的服务器来协调处理，这样的服务器被称为Leader服务器，而剩下的其他服务器则成为Follower服务器。
+Leader服务器负责将一个客户端事务请求转换成一个事务Proposal（提案）并将该Proposal分发给集群中所有的Follower服务器。
+之后Leader服务器需要等待所有Follower服务器的反馈，一旦超过半数的Follower服务器进行了正确的反馈后，
+Leader就会再次向所有的Follower服务器分发Commit消息，要求对刚才的Proposal进行提交。
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">Spring Cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_9">读写过程</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h4 id="toc_10">写Leader</h4>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>客户端向Leader发起写请求</li>
+<li>Leader发送提案给所有Follower并等待ACK</li>
+<li>过半Follower回复ACK，Leader自己也有一票ACK，向所有Follower、Observer发送commit</li>
+<li>返回结果给客户端</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<h4 id="toc_11">写Follower、Observer</h4>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>转发给Leader</li>
+<li>同写Leader</li>
+</ul>
 
-				</p>
-			</div>
- 	 
-</div>  
+<h4 id="toc_12">读</h4>
+
+<ul>
+<li>直接从本地内存读取后返回</li>
+</ul>
+
+<h3 id="toc_13">选举过程</h3>
+
+<p><a href="https://dbaplus.cn/news-141-1875-1.html">选举过程</a></p>
+
+<h3 id="toc_14">两种模式</h3>
+
+<p><strong>恢复模式</strong></p>
+
+<p>服务启动或Leader挂掉后，进入恢复模式。<br/>
+Leader选举完成，且大部分节点完成状态同步后，退出恢复模式</p>
+<br>
+<p><strong>广播模式</strong></p>
+
+<p>正常维持在广播状态<br/>
+新节点加入时，会在恢复模式下启动，以完成状态同步</p>
+
+<h2 id="toc_15">面试问题</h2>
+
+<h3 id="toc_16">如何保证事务的顺序一致性</h3>
+
+<p>通过事务号zxid，</p>
+
+<ul>
+<li>高32位：世代号，每次出现新Leader即加1</li>
+<li>低32位：每次新事务加1</li>
+</ul>
+
+<h3 id="toc_17">部署模式</h3>
+
+<ul>
+<li>单机</li>
+<li>集群</li>
+<li>伪集群（单机多实例）</li>
+</ul>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/08/22</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15981025908754.html"  title="Previous Post: 安全">&laquo; 安全</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15981005517872.html"
+	        title="Next Post: Linux">Linux &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15981025270346.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -679,6 +524,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        LRU（last recent used） - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,426 +221,279 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15981744394317.html">分布式</a></h3>
-				<p>
-					<time datetime="2020-08-23T17:20:39+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>LRU（last recent used）</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981529091955.html">运维相关</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:21:49+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">package fighting.algorithm.project;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981528120452.html">网络</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:20:12+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+import java.util.HashMap;
+import java.util.Map;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981504896199.html">LRU（last recent used）</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:41:29+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+/**
+ * LRU：即last recent used，最近使用的队列
+ * &lt;p&gt;
+ * 作用：
+ * 用于缓存，当内存满时，删除最近未使用的元素
+ * &lt;p&gt;
+ * 操作：
+ * put(k, v)：插入元素，当内存满时需要先做清除。满足O(1)复杂度
+ * get(k)：获取，同时设为最近使用。满足O(1)复杂度
+ * &lt;p&gt;
+ * 分析：
+ * 最近使用关系，可使用元素顺序来表示，即队头是最近使用的，队尾的是最后使用的
+ * 需要满足快速查询：哈希表
+ * 满足元素顺序：链表
+ * &lt;p&gt;
+ * 结论：
+ * 使用双向链表作为基础，最近使用的移到队头，内存不足时删除队尾的。双向的目的是做O(1)删除
+ * 用哈希表来加速查询
+ */
+public class LRU {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981499416448.html">表达式求值</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:32:21+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    private Map&lt;Integer, Node&gt; map;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981493832715.html">BFS（广度优先搜索）问题</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:23:03+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    private DoubleLinkedList doubleLinkedList;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981488069038.html">动态规则笔记</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:13:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    private int maxSize;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025908754.html">安全</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:23:10+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    private int size;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025270346.html">Zookeeper</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:22:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    public LRU(int maxSize) {
+        this.maxSize = maxSize;
+        doubleLinkedList = new DoubleLinkedList();
+        map = new HashMap&lt;&gt;();
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981005517872.html">Linux</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:49:11+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 添加元素并移到队头
+     * 1、已存在
+     * 2、已满
+     * 3、注意移到队头并更新size
+     */
+    public void put(int k, int value) {
+        if (map.containsKey(k)) {
+            doubleLinkedList.remove(map.get(k));
+        } else if (size == maxSize) {
+            Node deletedNode = doubleLinkedList.removeLast();
+            map.remove(deletedNode.key);
+        } else {
+            size++;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980994076315.html">Redis</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:30:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        Node newNode = new Node(k, value);
+        doubleLinkedList.addFirst(newNode);
+        map.put(k, newNode);
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980950267265.html">Spring</a></h3>
-				<p>
-					<time datetime="2020-08-22T19:17:06+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 获取元素并移到队头
+     */
+    public int get(int key) {
+        if (!map.containsKey(key)) {
+            return -1;
+        }
+        Node node = map.get(key);
+        doubleLinkedList.remove(node);
+        doubleLinkedList.addFirst(node);
+        return node.value;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980814209679.html">Java Jvm</a></h3>
-				<p>
-					<time datetime="2020-08-22T15:30:20+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    public static void main(String[] args) {
+        LRU lru = new LRU(3);
+        lru.put(1, 1);
+        lru.put(2, 2);
+        lru.put(3, 3);
+        lru.put(4, 4);
+        lru.doubleLinkedList.print();
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980740537693.html">Java并发</a></h3>
-				<p>
-					<time datetime="2020-08-22T13:27:33+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        System.out.println(lru.get(2));
+        lru.put(5, 5);
+        lru.doubleLinkedList.print();
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980638067464.html">Java基础</a></h3>
-				<p>
-					<time datetime="2020-08-22T10:36:46+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    public static void doubleLinkedListTest() {
+        Node node1 = new Node(1, 1);
+        Node node2 = new Node(2, 2);
+        Node node3 = new Node(3, 3);
+        Node node4 = new Node(4, 4);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980143464972.html">树</a></h3>
-				<p>
-					<time datetime="2020-08-21T20:52:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>21</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        DoubleLinkedList linkedList = new DoubleLinkedList();
+        linkedList.addFirst(node4);
+        linkedList.addFirst(node3);
+        linkedList.addFirst(node2);
+        linkedList.addFirst(node1);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15979335853537.html">数据库</a></h3>
-				<p>
-					<time datetime="2020-08-20T22:26:25+08:00" pubdate><span class='month'>8月</span> <span class='day'>20</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        linkedList.print();
+        linkedList.removeLast();
+        linkedList.remove(node1);
+        linkedList.print();
+        linkedList.remove(node2);
+        linkedList.removeLast();
+        linkedList.print();
+    }
+}
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15972372249797.html">消息队列</a></h3>
-				<p>
-					<time datetime="2020-08-12T21:00:24+08:00" pubdate><span class='month'>8月</span> <span class='day'>12</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+/**
+ * 链表节点
+ */
+class Node {
+    public int key, value;
+    public Node prev, next;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    public Node(int key, int value) {
+        this.key = key;
+        this.value = value;
+    }
+}
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+/**
+ * 双向链表
+ * 注意size为0（空队列），size为1（头尾相同）的情况
+ * 注意对size做加减操作
+ */
+class DoubleLinkedList {
+    private Node head, tail;
+    private int size;
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 添加到队头
+     */
+    public void addFirst(Node node) {
+        if (size == 0) {
+            head = tail = node;
+            node.prev = node.next = null;
+            size++;
+            return;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">Spring Cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        node.next = head;
+        head.prev = node;
+        head = node;
+        size++;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 移除给定元素
+     */
+    public void remove(Node node) {
+        if (node == tail) {
+            removeLast();
+            return;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+        size--;
+        if (head == node) {
+            head = node.next;
+            return;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+        node.prev.next = node.next;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+    /**
+     * 移除最后一个元素
+     */
+    public Node removeLast() {
+        if (size == 0) {
+            return null;
+        }
 
-				</p>
-			</div>
- 	 
-</div>  
+        if (size == 1) {
+            Node last = tail;
+            head = tail = null;
+            size = 0;
+            return last;
+        }
+
+        Node last = tail;
+        Node secondLast = tail.prev;
+        secondLast.next = null;
+        tail = secondLast;
+        size--;
+        return last;
+    }
+
+    public void print() {
+        Node node = head;
+        System.out.println();
+        while (node != null) {
+            System.out.println(node.value);
+            node = node.next;
+        }
+        System.out.println();
+    }
+}
+
+</code></pre>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/08/23</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15981528120452.html"  title="Previous Post: 网络">&laquo; 网络</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15981499416448.html"
+	        title="Next Post: 表达式求值">表达式求值 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15981504896199.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -679,6 +532,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

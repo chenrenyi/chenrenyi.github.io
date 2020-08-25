@@ -4,7 +4,7 @@
   <title><![CDATA[白驼山庄]]></title>
   <link href="https://chenrenyi.github.io/atom.xml" rel="self"/>
   <link href="https://chenrenyi.github.io/"/>
-  <updated>2020-06-18T11:53:11+08:00</updated>
+  <updated>2020-08-23T21:54:59+08:00</updated>
   <id>https://chenrenyi.github.io/</id>
   <author>
     <name><![CDATA[]]></name>
@@ -14,86 +14,735 @@
 
   
   <entry>
-    <title type="html"><![CDATA[消息队列]]></title>
-    <link href="https://chenrenyi.github.io/15972372249797.html"/>
-    <updated>2020-08-12T21:00:24+08:00</updated>
-    <id>https://chenrenyi.github.io/15972372249797.html</id>
+    <title type="html"><![CDATA[分布式]]></title>
+    <link href="https://chenrenyi.github.io/15981744394317.html"/>
+    <updated>2020-08-23T17:20:39+08:00</updated>
+    <id>https://chenrenyi.github.io/15981744394317.html</id>
     <content type="html"><![CDATA[
-<h2 id="toc_0">综合问题</h2>
+<h2 id="toc_0">分布式锁</h2>
 
-<h3 id="toc_1">为什么使用消息队列</h3>
+<h3 id="toc_1">Reids分布式锁</h3>
+
+<pre><code class="language-java">public class RedisTool {
+
+    private static final String LOCK_SUCCESS = &quot;OK&quot;;
+    private static final String SET_IF_NOT_EXIST = &quot;NX&quot;;
+    private static final String SET_WITH_EXPIRE_TIME = &quot;PX&quot;;
+
+    /**
+     * 尝试获取分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @param expireTime 超期时间
+     * @return 是否获取成功
+     */
+    public static boolean tryGetDistributedLock(Jedis jedis, String lockKey, String requestId, int expireTime) {
+
+        String result = jedis.set(lockKey, requestId, SET_IF_NOT_EXIST, SET_WITH_EXPIRE_TIME, expireTime);
+
+        if (LOCK_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+
+    }
+
+    /**
+     * 释放分布式锁
+     * @param jedis Redis客户端
+     * @param lockKey 锁
+     * @param requestId 请求标识
+     * @return 是否释放成功
+     */
+    public static boolean releaseDistributedLock(Jedis jedis, String lockKey, String requestId) {
+
+        String script = &quot;if redis.call(&#39;get&#39;, KEYS[1]) == ARGV[1] then return redis.call(&#39;del&#39;, KEYS[1]) else return 0 end&quot;;
+        Object result = jedis.eval(script, Collections.singletonList(lockKey), Collections.singletonList(requestId));
+
+        if (RELEASE_SUCCESS.equals(result)) {
+            return true;
+        }
+        return false;
+
+    }
+}    
+</code></pre>
+<br>
+<p><strong>为何需要requestId</strong></p>
 
 <ul>
-<li>异步</li>
-<li>解耦</li>
-<li>削峰</li>
+<li>线程1执行逻辑为：加锁、执行逻辑、解锁</li>
+<li>若线程1执行逻辑时间，超过锁有效期，则解锁时有可能解除了别人的锁</li>
 </ul>
 
-<h3 id="toc_2">有哪些消息队列</h3>
+<p><strong>缺点</strong></p>
 
 <ul>
-<li>ActiveMQ 老牌产品</li>
-<li>RabbitMQ 流行，ERLang编写，成熟稳定，自带的管理界面较好用</li>
-<li>RocketMQ 阿里出品，java编写，成熟度上不如RabbitMQ</li>
-<li>kafka 吞吐量大，一般用作大数据处理，比如日志处理</li>
+<li>Redis 主从复制是异步的，主挂掉切换主后，可能有部分数据丢失，导致锁丢失</li>
 </ul>
 
-<h2 id="toc_3">RabbitMQ</h2>
-
-<h3 id="toc_4">基本概念</h3>
+<h3 id="toc_2">数据库分布式锁</h3>
 
 <ul>
-<li>exchange 路由，消息是发送给某一个路由</li>
-<li>queue 队列，实际存储数据，读数据是从某一个队列读取</li>
-<li>binding 把路由和queue绑定出来，按一定规则作分发</li>
-<li>routing key 一个关键字，按照key来作不同的分发</li>
-<li>channel 信道</li>
+<li>select for update</li>
+<li>唯一索引</li>
+<li>版本号</li>
 </ul>
 
-<h3 id="toc_5">分发模式</h3>
+<h3 id="toc_3">Zookeeper分布式锁</h3>
 
 <ul>
-<li>direct 点对点，按routing key完全匹配来分发</li>
-<li>fanout 广播模式，不需要 routing key，直接复制</li>
-<li>topic 按routing 模糊匹配来分发 * 一个单词，# 号零个或多个单词</li>
-<li>headers 根据消息本身的header来匹配</li>
+<li>创建临时有序节点来创建锁</li>
+<li>获取所有节点，判断序号是否最小来判断是否有锁</li>
+<li>监听上一节点来实现等待锁</li>
 </ul>
 
-<h3 id="toc_6">高可用</h3>
+<p><strong>缺点</strong></p>
 
 <ul>
-<li>单机模式</li>
-<li>普通集群模式，queue只放在一个实例上，其它实例同步queue的元信息，需要时再去取</li>
-<li>镜像集群模式，同步queue的元信息和数据信息</li>
+<li>创建临时锁的目的，是防止程序挂掉无法释放锁</li>
+<li>也可能因为网络故障而错误释放锁</li>
 </ul>
 
-<h3 id="toc_7">问题</h3>
+<h2 id="toc_4">分布式事务</h2>
+
+<h3 id="toc_5">两阶段提交协议</h3>
+
+<p>商业数据库自带</p>
+
+<p>过程：<br/>
+<img src="media/15981744394317/15981925713829.jpg" alt=""/><br/>
+<img src="media/15981744394317/15981925853892.jpg" alt=""/></p>
+
+<h3 id="toc_6">三阶段提交</h3>
+
+<p><img src="media/15981744394317/15981926125149.jpg" alt=""/></p>
+
+<p><img src="media/15981744394317/15981926185170.jpg" alt=""/></p>
+
+<h3 id="toc_7">MQ事务</h3>
+
+<p><img src="media/15981744394317/15981778819286.jpg" alt=""/></p>
+
+<h2 id="toc_8">负载均衡</h2>
+
+<h3 id="toc_9">算法</h3>
 
 <ul>
-<li>保证消息有序
+<li>轮询</li>
+<li>加权轮询</li>
+<li>随机</li>
+<li>最少连接</li>
+<li>加权最小连接</li>
+</ul>
+
+<h3 id="toc_10">实现</h3>
+
 <ul>
-<li>拆分多个queue，每个queue一个consumer</li>
-<li>只有一个queue和一个consumer，consumer再通过内部队列作有序处理</li>
+<li>DNS 解析</li>
+<li>修改 Mac地址</li>
+<li>修改 IP 地址</li>
+<li>Http 重定向</li>
+<li>Nginx 反向代理</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[运维相关]]></title>
+    <link href="https://chenrenyi.github.io/15981529091955.html"/>
+    <updated>2020-08-23T11:21:49+08:00</updated>
+    <id>https://chenrenyi.github.io/15981529091955.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">发布策略</h2>
+
+<ul>
+<li>蓝绿部署
+<ul>
+<li>部署一套实例数完全相同的新版本</li>
 </ul></li>
-<li>保证消息不重复
+<li>滚动部署
 <ul>
-<li>业务层需要幂等</li>
+<li>发布一定比例的新版本，关闭老版本。直至完全切换</li>
 </ul></li>
-<li>保证消息不丢失
+<li>灰度发布/金丝雀发布
 <ul>
-<li>发送成功：开启发送确认模式</li>
-<li>存储时不丢失：开启持久化</li>
-<li>消费成功：开启消息的确认模式</li>
-</ul></li>
-<li>消息大量积压如何处理
-<ul>
-<li>加快消费：扩容consumer</li>
-<li>临时导出：把队列数据临时导出来，等资源不紧张了再处理</li>
-<li>丢弃数据：高峰过去后，想办法让发送方再触发一次</li>
+<li>对应ABTest，先发布一部分到线上，观察无问题后切换</li>
 </ul></li>
 </ul>
 
-<h2 id="toc_8">kafka</h2>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[网络]]></title>
+    <link href="https://chenrenyi.github.io/15981528120452.html"/>
+    <updated>2020-08-23T11:20:12+08:00</updated>
+    <id>https://chenrenyi.github.io/15981528120452.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">网络分层模型</h2>
+
+<p><img src="media/15981528120452/15981528491746.jpg" alt=""/></p>
+
+<p><img src="media/15981528120452/15981528604902.jpg" alt=""/></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[LRU（last recent used）]]></title>
+    <link href="https://chenrenyi.github.io/15981504896199.html"/>
+    <updated>2020-08-23T10:41:29+08:00</updated>
+    <id>https://chenrenyi.github.io/15981504896199.html</id>
+    <content type="html"><![CDATA[
+<pre><code class="language-java">package fighting.algorithm.project;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * LRU：即last recent used，最近使用的队列
+ * &lt;p&gt;
+ * 作用：
+ * 用于缓存，当内存满时，删除最近未使用的元素
+ * &lt;p&gt;
+ * 操作：
+ * put(k, v)：插入元素，当内存满时需要先做清除。满足O(1)复杂度
+ * get(k)：获取，同时设为最近使用。满足O(1)复杂度
+ * &lt;p&gt;
+ * 分析：
+ * 最近使用关系，可使用元素顺序来表示，即队头是最近使用的，队尾的是最后使用的
+ * 需要满足快速查询：哈希表
+ * 满足元素顺序：链表
+ * &lt;p&gt;
+ * 结论：
+ * 使用双向链表作为基础，最近使用的移到队头，内存不足时删除队尾的。双向的目的是做O(1)删除
+ * 用哈希表来加速查询
+ */
+public class LRU {
+
+    private Map&lt;Integer, Node&gt; map;
+
+    private DoubleLinkedList doubleLinkedList;
+
+    private int maxSize;
+
+    private int size;
+
+    public LRU(int maxSize) {
+        this.maxSize = maxSize;
+        doubleLinkedList = new DoubleLinkedList();
+        map = new HashMap&lt;&gt;();
+    }
+
+    /**
+     * 添加元素并移到队头
+     * 1、已存在
+     * 2、已满
+     * 3、注意移到队头并更新size
+     */
+    public void put(int k, int value) {
+        if (map.containsKey(k)) {
+            doubleLinkedList.remove(map.get(k));
+        } else if (size == maxSize) {
+            Node deletedNode = doubleLinkedList.removeLast();
+            map.remove(deletedNode.key);
+        } else {
+            size++;
+        }
+
+        Node newNode = new Node(k, value);
+        doubleLinkedList.addFirst(newNode);
+        map.put(k, newNode);
+    }
+
+    /**
+     * 获取元素并移到队头
+     */
+    public int get(int key) {
+        if (!map.containsKey(key)) {
+            return -1;
+        }
+        Node node = map.get(key);
+        doubleLinkedList.remove(node);
+        doubleLinkedList.addFirst(node);
+        return node.value;
+    }
+
+    public static void main(String[] args) {
+        LRU lru = new LRU(3);
+        lru.put(1, 1);
+        lru.put(2, 2);
+        lru.put(3, 3);
+        lru.put(4, 4);
+        lru.doubleLinkedList.print();
+
+        System.out.println(lru.get(2));
+        lru.put(5, 5);
+        lru.doubleLinkedList.print();
+    }
+
+    public static void doubleLinkedListTest() {
+        Node node1 = new Node(1, 1);
+        Node node2 = new Node(2, 2);
+        Node node3 = new Node(3, 3);
+        Node node4 = new Node(4, 4);
+
+        DoubleLinkedList linkedList = new DoubleLinkedList();
+        linkedList.addFirst(node4);
+        linkedList.addFirst(node3);
+        linkedList.addFirst(node2);
+        linkedList.addFirst(node1);
+
+        linkedList.print();
+        linkedList.removeLast();
+        linkedList.remove(node1);
+        linkedList.print();
+        linkedList.remove(node2);
+        linkedList.removeLast();
+        linkedList.print();
+    }
+}
+
+/**
+ * 链表节点
+ */
+class Node {
+    public int key, value;
+    public Node prev, next;
+
+    public Node(int key, int value) {
+        this.key = key;
+        this.value = value;
+    }
+}
+
+/**
+ * 双向链表
+ * 注意size为0（空队列），size为1（头尾相同）的情况
+ * 注意对size做加减操作
+ */
+class DoubleLinkedList {
+    private Node head, tail;
+    private int size;
+
+    /**
+     * 添加到队头
+     */
+    public void addFirst(Node node) {
+        if (size == 0) {
+            head = tail = node;
+            node.prev = node.next = null;
+            size++;
+            return;
+        }
+
+        node.next = head;
+        head.prev = node;
+        head = node;
+        size++;
+    }
+
+    /**
+     * 移除给定元素
+     */
+    public void remove(Node node) {
+        if (node == tail) {
+            removeLast();
+            return;
+        }
+
+        size--;
+        if (head == node) {
+            head = node.next;
+            return;
+        }
+
+        node.prev.next = node.next;
+    }
+
+    /**
+     * 移除最后一个元素
+     */
+    public Node removeLast() {
+        if (size == 0) {
+            return null;
+        }
+
+        if (size == 1) {
+            Node last = tail;
+            head = tail = null;
+            size = 0;
+            return last;
+        }
+
+        Node last = tail;
+        Node secondLast = tail.prev;
+        secondLast.next = null;
+        tail = secondLast;
+        size--;
+        return last;
+    }
+
+    public void print() {
+        Node node = head;
+        System.out.println();
+        while (node != null) {
+            System.out.println(node.value);
+            node = node.next;
+        }
+        System.out.println();
+    }
+}
+
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[表达式求值]]></title>
+    <link href="https://chenrenyi.github.io/15981499416448.html"/>
+    <updated>2020-08-23T10:32:21+08:00</updated>
+    <id>https://chenrenyi.github.io/15981499416448.html</id>
+    <content type="html"><![CDATA[
+<p>题目：<br/>
+<a href="https://leetcode-cn.com/problems/basic-calculator-ii/">https://leetcode-cn.com/problems/basic-calculator-ii/</a></p>
+
+<pre><code class="language-java">class Solution {
+     public int calculate(String s) {
+        LinkedList&lt;Integer&gt; integers = new LinkedList&lt;&gt;();
+        LinkedList&lt;Character&gt; ops = new LinkedList&lt;&gt;();
+
+        for (int i = 0; i &lt; s.length(); i++) {
+            char c = s.charAt(i);
+            if (c == &#39; &#39;) {
+                continue;
+            }
+            if (!Character.isDigit(c)) {
+                ops.push(c);
+                continue;
+            }
+            int number = c - &#39;0&#39;;
+            while (i + 1 &lt; s.length() &amp;&amp; Character.isDigit(s.charAt(i + 1))) {
+                i++;
+                number = number * 10 + s.charAt(i) - &#39;0&#39;;
+            }
+
+            if (!ops.isEmpty()) {
+                char lastOp = ops.peek();
+                if (lastOp == &#39;*&#39;) {
+                    ops.pop();
+                    integers.push(integers.pop() * number);
+                    continue;
+                } else if (lastOp == &#39;/&#39;) {
+                    ops.pop();
+                    integers.push(integers.pop() / number);
+                    continue;
+                }
+            }
+            integers.push(number);
+        }
+
+        int res = integers.removeLast();
+        while (!ops.isEmpty()) {
+            char lastOp = ops.removeLast();
+            if (lastOp == &#39;+&#39;) {
+                res += integers.removeLast();
+            } else {
+                res -= integers.removeLast();
+            }
+        }
+        return res;
+    }
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[BFS（广度优先搜索）问题]]></title>
+    <link href="https://chenrenyi.github.io/15981493832715.html"/>
+    <updated>2020-08-23T10:23:03+08:00</updated>
+    <id>https://chenrenyi.github.io/15981493832715.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">框架</h2>
+
+<pre><code class="language-cpp">// 计算从起点 start 到终点 target 的最近距离
+int BFS(Node start, Node target) {
+    Queue&lt;Node&gt; q; // 核心数据结构
+    Set&lt;Node&gt; visited; // 避免走回头路
+
+    q.offer(start); // 将起点加入队列
+    visited.add(start);
+    int step = 0; // 记录扩散的步数
+
+    while (q not empty) {
+        int sz = q.size();
+        /* 将当前队列中的所有节点向四周扩散 */
+        for (int i = 0; i &lt; sz; i++) {
+            Node cur = q.poll();
+            /* 划重点：这里判断是否到达终点 */
+            if (cur is target)
+                return step;
+            /* 将 cur 的相邻节点加入队列 */
+            for (Node x : cur.adj())
+                if (x not in visited) {
+                    q.offer(x);
+                    visited.add(x);
+                }
+        }
+        /* 划重点：更新步数在这里 */
+        step++;
+    }
+}
+</code></pre>
+
+<h2 id="toc_1">二叉树的最小深度</h2>
+
+<p>题目：<br/>
+<a href="https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/">https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/</a></p>
+
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    // 递归版本
+    int min2(TreeNode root) {
+        if(root == null) return 0;
+        int left = min2(root.left);
+        int right = min2(root.right);
+        if(left != 0 &amp;&amp; right != 0) {
+            return 1 + Math.min(left, right);
+        } else {
+            return 1 + left + right;
+        }
+    }
+
+    public int minDepth(TreeNode root) {
+        return min2(root);
+    }
+
+    // 非递归版本
+    public int minDepth2(TreeNode root) {
+        if(root == null) {
+            return 0;
+        }
+        LinkedList&lt;TreeNode&gt; list = new LinkedList&lt;&gt;();
+        LinkedList&lt;TreeNode&gt; nextList = new LinkedList&lt;&gt;();
+        int depth = 1;
+        list.add(root);
+        while(true) {
+            if(list.isEmpty()) {
+                if(nextList.isEmpty()) break;
+                depth++;
+                list = nextList;
+                nextList = new LinkedList();
+            }
+            TreeNode node = list.removeFirst();
+            if(node == null) {
+                continue;
+            }
+            if(node.left == null &amp;&amp; node.right == null) {
+                break;
+            }
+            nextList.add(node.left);
+            nextList.add(node.right);
+        }
+
+        return depth;
+    }
+}
+</code></pre>
+
+<h2 id="toc_2">转盘锁</h2>
+
+<p>题目：<br/>
+<a href="https://leetcode-cn.com/problems/open-the-lock/">https://leetcode-cn.com/problems/open-the-lock/</a></p>
+
+<pre><code class="language-java">class Solution {
+
+    List&lt;Character&gt; nums;
+    
+    public int openLock(String[] deadLocks, String target) {
+        nums = Arrays.asList(&#39;0&#39;, &#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;);
+        List&lt;String&gt; deadLockList = Arrays.asList(deadLocks);
+
+        Set&lt;String&gt; list = new HashSet&lt;&gt;();
+        Set&lt;String&gt; list2 = new HashSet&lt;&gt;();
+        list.add(&quot;0000&quot;);
+        list2.add(target);
+        Set&lt;String&gt; visited = new HashSet&lt;&gt;(list);
+
+        if (deadLockList.contains(target) || deadLockList.contains(&quot;0000&quot;)) {
+            return -1;
+        }
+
+        visited.addAll(deadLockList);
+        int step = 0;
+        while (!list.isEmpty()) {
+            Set&lt;String&gt; tmp = new HashSet&lt;&gt;(list);
+            for (String lock : tmp) {
+                list.remove(lock);
+                if (list2.contains(lock)) {
+                    return step;
+                }
+                visited.add(lock);
+
+                LinkedList&lt;String&gt; nextLocks = getNextLocks(lock);
+                for (String nextLock : nextLocks) {
+                    if (visited.contains(nextLock)) {
+                        continue;
+                    }
+                    list.add(nextLock);
+                }
+            }
+            step++;
+            Set&lt;String&gt; swap = list;
+            list = list2;
+            list2 = swap;
+        }
+
+        return -1;
+    }
+
+    LinkedList&lt;String&gt; getNextLocks(String lock) {
+        LinkedList&lt;String&gt; nextLocks = new LinkedList&lt;&gt;();
+        for (int i = 0; i &lt; lock.length(); i++) {
+            StringBuilder newLock = new StringBuilder(lock);
+            int index = nums.indexOf(newLock.charAt(i));
+            char nextChar = nums.get((index + 10 + 1) % 10);
+            newLock.replace(i, i + 1, String.valueOf(nextChar));
+            nextLocks.add(newLock.toString());
+
+            nextChar = nums.get((index + 10 - 1) % 10);
+            newLock.replace(i, i + 1, String.valueOf(nextChar));
+            nextLocks.add(newLock.toString());
+        }
+        return nextLocks;
+    }
+
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[动态规则笔记]]></title>
+    <link href="https://chenrenyi.github.io/15981488069038.html"/>
+    <updated>2020-08-23T10:13:26+08:00</updated>
+    <id>https://chenrenyi.github.io/15981488069038.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">框架</h2>
+
+<pre><code class="language-text"># 初始化 base case
+dp[0][0][...] = base
+# 进行状态转移
+for 状态1 in 状态1的所有取值：
+    for 状态2 in 状态2的所有取值：
+        for ...
+            dp[状态1][状态2][...] = 求最值(选择1，选择2...)
+</code></pre>
+
+<h2 id="toc_1">斐波那契数</h2>
+
+<pre><code class="language-java">class Solution {
+
+    public int fib(int n) {
+        if(n == 0 || n==1) {
+            return n;
+        }
+        int answer = 0;
+        int last = 1;
+        int last_last = 0;
+        for(int i=2; i&lt;=n; i++) {
+            answer = last + last_last;
+            last_last = last;
+            last = answer;
+        }
+        return answer;
+    }
+}
+</code></pre>
+
+<h2 id="toc_2">零钱兑换</h2>
+
+<pre><code class="language-text">题目：
+给定不同面额的硬币 coins 和一个总金额 amount。
+编写一个函数来计算可以凑成总金额所需的最少的硬币个数。
+如果没有任何一种硬币组合能组成总金额，返回 -1。
+</code></pre>
+
+<pre><code class="language-java">class Solution {
+    Map&lt;Integer, Integer&gt; map = new HashMap&lt;&gt;();
+
+
+    // 非递归版本
+    public int coinChange(int[] coins, int amount) {
+        if(amount == 0) {
+            return 0;
+        }
+        int[] arr = new int[amount + 1];
+        for(int i=1; i&lt;arr.length; i++) {
+            arr[i] = -1;
+        }
+        for(int coin: coins) {
+            if(coin &lt; arr.length) arr[coin] = 1;
+        }
+        for(int i=1; i&lt;=amount; i++) {
+            if(arr[i] != -1) continue;
+            int min = i;
+            boolean hasAnawer = false;
+            for(int coin: coins) {
+                if(i-coin &lt; 0) continue;
+                if(arr[i-coin] == -1) continue;
+                min = Math.min(min, arr[i-coin] + 1);
+                hasAnawer = true;
+            }
+            if(hasAnawer) arr[i] = min;
+        }
+        return arr[amount];
+    }
+
+    // 递归版本
+    public int coinChange2(int[] coins, int amount) {
+        if(map.containsKey(amount)) return map.get(amount);
+
+        if(amount == 0) {
+            map.put(amount, 0);
+            return 0;
+        }
+
+        if(amount &lt; 0) {
+            map.put(amount, -1);
+            return -1;
+        }
+
+        int min = amount;
+        boolean hasAnawer = false;
+        for(int coin : coins) {
+            if(amount - coin &lt; 0) continue;
+            int subAnswer = coinChange(coins, amount - coin);
+            if (subAnswer == -1) continue;
+            min = Math.min(min, subAnswer + 1);
+            hasAnawer = true;
+        }
+        if (!hasAnawer) min = -1;
+        map.put(amount, min);
+        return min;
+    }
+}
+</code></pre>
 
 ]]></content>
   </entry>
@@ -272,453 +921,6 @@ public class Queen {
 }
 
 </code></pre>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[ForkJoinPool 相关]]></title>
-    <link href="https://chenrenyi.github.io/15922331141719.html"/>
-    <updated>2020-06-15T22:58:34+08:00</updated>
-    <id>https://chenrenyi.github.io/15922331141719.html</id>
-    <content type="html"><![CDATA[
-<pre><code class="language-java">package fighting.threads;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.*;
-
-/**
- * ForkJoinPool学习
- * 不同之处：
- * 1、没有一个公共的任务队列，而是每个工作线程都有自己两个任务队列（外部和内部产生的子任务）
- * 2、目的是避免处理大量短平快任务时，对公共队列任务的争抢引发性能问题。即每个任务执行都很快，但多并发情况下公共任务队列push和pop的加锁成为了瓶颈
- *
- * 两个作用：
- * 1、分而治之，允许任务执行过程中，再次提交子任务，从而缩短时间
- * 2、工作窃取，线程池中已完成的工作线程，将主动获取所有线程队列中已提交未完成的任务或子任务
- *
- * 对应的类：
- * ForkJoinPool：线程池
- * ForkJoinPool.common：全局公用的线程池
- * ForkJoinTask：有返回值的任务
- * ForkJoinAction：没有返回值任务
- *
- * 相关类：
- * Executors.newWorkStealingPool()
- * stream.parallelStream()
- */
-public class ForkJoinPoolTest {
-
-    /**
-     * 测试入口
-     */
-    public static void main(String[] args) throws ExecutionException, InterruptedException {
-        ForkJoinPool pool = new ForkJoinPool(10);
-        ForkJoinTask&lt;Integer&gt; result = pool.submit(new CalcIntegerTask(0, 100000));
-        System.out.println(result.get());
-        pool.shutdown();
-
-        // 通过executors创建线程池
-        Executors.newWorkStealingPool().submit(() -&gt; System.out.println(&quot;a runnable task&quot;));
-
-        // parallelStream（pærəlel），默认使用 ForkJoinPool.common
-        List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
-        numbers.parallelStream().forEach(System.out::println);
-    }
-
-}
-
-/**
- * 数字计算任务
- */
-class CalcIntegerTask extends RecursiveTask&lt;Integer&gt; {
-
-    private Integer start;
-
-    private Integer end;
-
-    public CalcIntegerTask(Integer start, Integer end) {
-        this.start = start;
-        this.end = end;
-    }
-
-    @Override
-    protected Integer compute() {
-        int sum = 0;
-        if (end - start &lt;= 100) {
-            // 数据量少时直接计算
-            for (int i = start; i &lt;= end; i++) {
-                sum += i;
-            }
-        } else {
-            // 数据量大时，分而治之。拆分子任务提交
-            int middle = (end - start) / 2 + start;
-            CalcIntegerTask leftTask = new CalcIntegerTask(start, middle);
-            CalcIntegerTask rightTask = new CalcIntegerTask(middle + 1, end);
-
-            // 子任务需要调用 fork 方法
-            leftTask.fork();
-            rightTask.fork();
-
-            // 使用 join 方法等待并获取值
-            sum = leftTask.join() + rightTask.join();
-        }
-
-        return sum;
-    }
-}
-
-</code></pre>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[概念理论]]></title>
-    <link href="https://chenrenyi.github.io/15922330840064.html"/>
-    <updated>2020-06-15T22:58:04+08:00</updated>
-    <id>https://chenrenyi.github.io/15922330840064.html</id>
-    <content type="html"><![CDATA[
-<h2 id="toc_0">CAP</h2>
-
-<p>分布式系统的3个指标，这3个指标只能同时满足两个</p>
-
-<ul>
-<li>Consistency：一致性</li>
-<li>Availability：可用性</li>
-<li>Partition tolerance：分区容错性</li>
-</ul>
-
-<h3 id="toc_1">Consistency：一致性</h3>
-
-<p><strong>概念</strong></p>
-
-<p>写之后进行读，能读到值即满足一致性</p>
-
-<p><strong>主要问题</strong></p>
-
-<p>写入集群中A机器，读B机器。B机器数据未同步前数据不是最新的。</p>
-
-<p><strong>解决办法</strong></p>
-
-<p>写入到集群中A机器时，在自身保存完毕并确保同步到B机器后，再返回写入成功。因此写入有延时。</p>
-
-<h3 id="toc_2">Availability：可用性</h3>
-
-<p><strong>概念</strong></p>
-
-<p>服务收到请求后，要立即回答</p>
-
-<p><strong>主要问题</strong></p>
-
-<p>与上述一致性有冲突，网络故障时也有影响</p>
-
-<h3 id="toc_3">Partition tolerance：分区容错性</h3>
-
-<p><strong>概念</strong></p>
-
-<p>集群中各个区之间是否允许有网络故障问题</p>
-
-<p><strong>主要问题</strong></p>
-
-<p>分布式系统必然肯定要允许，所以p必须保证。从而 c、a 只能选一</p>
-
-<h3 id="toc_4">可用性与一致性矛盾</h3>
-
-<pre><code class="language-text">一致性和可用性，为什么不可能同时成立？答案很简单，因为可能通信失败（即出现分区容错）。
-
-如果保证 G2 的一致性，那么 G1 必须在写操作时，锁定 G2 的读操作和写操作。只有数据同步后，才能重新开放读写。锁定期间，G2 不能读写，没有可用性不。
-
-如果保证 G2 的可用性，那么势必不能锁定 G2，所以一致性不成立。
-
-综上所述，G2 无法同时做到一致性和可用性。系统设计时只能选择一个目标。如果追求一致性，那么无法保证所有节点的可用性；如果追求所有节点的可用性，那就没法做到一致性。
-</code></pre>
-
-<h2 id="toc_5">RPC</h2>
-
-<p>构成：</p>
-
-<ul>
-<li>RPC协议：基于http，或者基于tcp自己定义协议</li>
-<li>序列化机制：JSON、xml、java自带的，或者开源第三方的。发送参数、返回结果对象</li>
-<li>代理：java的动态代理，切入转发逻辑</li>
-</ul>
-
-<h3 id="toc_6">序列化协议</h3>
-
-<ul>
-<li>java原生（ObjectInputStream)
-<ul>
-<li>不能跨平台</li>
-<li>体积大，性能差</li>
-</ul></li>
-<li>protobuf（potike)
-<ul>
-<li>谷歌出品，本质是一种结构化数据描述文件</li>
-</ul></li>
-<li>Thrift(θrɪft)</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[spring cloud 系列]]></title>
-    <link href="https://chenrenyi.github.io/15922330508180.html"/>
-    <updated>2020-06-15T22:57:30+08:00</updated>
-    <id>https://chenrenyi.github.io/15922330508180.html</id>
-    <content type="html"><![CDATA[
-<h2 id="toc_0">服务注册</h2>
-
-<p>提供服务的注册与查询功能</p>
-
-<h3 id="toc_1">Eureka</h3>
-
-<p>保证cap中的ap，即可用性。<br/>
-服务注册相对要快，因为不需要等注册信息replicate到其他节点，也不保证注册信息是否replicate成功<br/>
-当数据出现不一致时，虽然A, B上的注册信息不完全相同，但每个Eureka节点依然能够正常对外提供服务，这会出现查询服务信息时如果请求A查不到，但请求B就能查到。如此保证了可用性但牺牲了一致性</p>
-
-<h3 id="toc_2">Consule</h3>
-
-<p>保证cap中的cp，即强一致性。<br/>
-服务注册相比Eureka会稍慢一些。因为Consul的raft协议要求必须过半数的节点都写入成功才认为注册成功<br/>
-Leader挂掉时，重新选举期间整个consul不可用。保证了强一致性但牺牲了可用性。</p>
-
-<h2 id="toc_3">网关 - Api Gateway</h2>
-
-<h3 id="toc_4">介绍</h3>
-
-<p>网关：路由分发和过滤</p>
-
-<ul>
-<li>作为代理，如nginx一般转发请求到后端服务</li>
-<li>配置服务注册中心，根据服务名自动转发</li>
-<li>统一请求入口，进行公共处理，如：
-<ul>
-<li>身份认证</li>
-<li>日志记录</li>
-<li>配合限流库：hystrix，熔断限流降级依赖隔离等</li>
-<li>配合负载均衡库：ribbon，流量负载均衡</li>
-</ul></li>
-</ul>
-
-<h3 id="toc_5">zuul</h3>
-
-<p><em>路由转发</em></p>
-
-<blockquote>
-<p>与服务注册中心配置时不需要配置</p>
-</blockquote>
-
-<pre><code class="language-text">zuul:
-    routes:
-        bms-biz:
-            path: /api/bms/biz/**
-            sensitiveHeaders: Content-Length
-            url: http://bms-biz.dsg.cfpamf.com
-</code></pre>
-
-<p><em>过滤</em></p>
-
-<pre><code class="language-text">preFilter  # 转发前拦截处理
-routeFilter # 实际路由
-postFilter  # 转发后拦截处理
-</code></pre>
-
-<h3 id="toc_6">spring cloud gateway</h3>
-
-<p>同上</p>
-
-<h2 id="toc_7">网络相关</h2>
-
-<h3 id="toc_8">feign</h3>
-
-<p>http调用客户端，通过注解调用接口<br/>
-本质是 ribbon + hystrix</p>
-
-<h3 id="toc_9">ribbon</h3>
-
-<p>负载均衡，重试</p>
-
-<h3 id="toc_10">Hystrix</h3>
-
-<blockquote>
-<p>[hIst&#39;rIks](嗨斯捶克斯）</p>
-</blockquote>
-
-<p>客户端容错保护，特性有服务降级、服务熔断、请求缓存、请求合并、依赖隔离</p>
-
-<p><strong>断路器</strong></p>
-
-<pre><code class="language-text">@HystrixCommand(fallbackMethod = &quot;processHystrix_Get&quot;)
-</code></pre>
-
-<p>达到一定条件时，不再执行原方法，而改为执行 fallback 方法</p>
-
-<h2 id="toc_11">配置中心</h2>
-
-<h3 id="toc_12">spring cloud config</h3>
-
-<p>提供配置信息</p>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Docker笔记]]></title>
-    <link href="https://chenrenyi.github.io/15916082982624.html"/>
-    <updated>2020-06-08T17:24:58+08:00</updated>
-    <id>https://chenrenyi.github.io/15916082982624.html</id>
-    <content type="html"><![CDATA[
-<h2 id="toc_0">Hello World!</h2>
-
-<p>下载一个镜像并运行</p>
-
-<pre><code class="language-text">docker image pull library/hello-world
-
-docker image ls 
-
-docker run hello-world
-</code></pre>
-
-<h2 id="toc_1">基本操作</h2>
-
-<p>镜像相关</p>
-
-<pre><code class="language-text">docker image help   # 帮助
-docker image ls     # 查看
-docker image rm     # 删除
-</code></pre>
-<br>
-<p>容器相关</p>
-
-<blockquote>
-<p>容器有可能在运行完毕后自动结束，也可能是常驻服务，后者可用kill命令杀掉</p>
-</blockquote>
-
-<pre><code class="language-text">docker container help   # 帮助
-docker container ls     # 查看
-docker container ls --all     # 查看包括已终止的所有容器
-
-docker container run    # 新建容器
-docker container start  # 启动
-docker container stop   # 停止，比 kill 更柔和
-docker container exec -it  # 进入一个正在运行的容器
-docker container cp  [containID]:[/path/to/file] .    # 复制文件
-
-docker container logs [containerID] # 查看容器日志输出
-
-docker container rm     # 杀掉容器
-docker container rm     # 删除容器文件
-</code></pre>
-
-<h2 id="toc_2">Dockfile</h2>
-
-<blockquote>
-<p>Dockfile用于配置生成image，即如果要自定义image需要使用它</p>
-</blockquote>
-
-<p>示例：打包一个 npm 前端网站</p>
-<br>
-<p>1、创建 .dockerignore 文件，即打包时需要排除的文件</p>
-
-<pre><code class="language-text">.git
-node_modules
-npm-debug.log
-</code></pre>
-<br>
-<p>2、编写Dockerfile</p>
-
-<pre><code class="language-text">FROM node:8.4   # 在该官方包的基础上进行
-COPY . /app     # 将目录 . 的内容复制进镜像的 /app 目录中
-WORKDIR /app    # 以 /app 目录作为工作所在目录
-RUN npm install --registry=https://registry.npm.taobao.org # 运行 npm 命令，该阶段产生的文件将被打包进 image 文件中
-EXPOSE 3000     # 暴露 3000 端口
-
-CMD npm run dev # 启动命令。RUN 编译镜像文件时运行，结果会打包进去。而 CMD 为容器启动时运行，只有一个
-</code></pre>
-<br>
-<p>3、编译生成 image 文件</p>
-
-<pre><code class="language-bash">docker image build -t front-demo .      # -t 指定名字和版本号
-docker image ls                         # 查看
-</code></pre>
-<br>
-<p>4、运行</p>
-
-<pre><code class="language-bash">docker container run -p 8000:3000 -it front-demo /bin/bash # 交互模式运行并映射端口，同时启动 /bin/bash，会覆盖 CMD 命令
-docker container run -rm -p 8000:3000 -it front-demo /bin/bash # 运行完毕后即删除容器文件
-</code></pre>
-
-<h2 id="toc_3">真实案例：生成网站</h2>
-
-<h3 id="toc_4">mysql容器</h3>
-
-<pre><code class="language-bash">docker container run --name wordpressdb --env MYSQL_ROOT_PASSWORD=123456 --env MYSQL_DATABASE=wordpress -d mysql:5.7
-</code></pre>
-
-<h3 id="toc_5">单独php容器</h3>
-
-<p>编写Dockerfile</p>
-
-<pre><code class="language-dockerfile"># dockerfile
-FROM php:5.6-apache
-RUN docker-php-ext-install mysqli
-CMD apache2-foreground
-</code></pre>
-
-<p>制作镜像</p>
-
-<pre><code class="language-bash">docker image build -t php-demo:1.0 .
-</code></pre>
-
-<p>运行容器</p>
-
-<pre><code class="language-bash">docker run --name php-demo --rm -p 7000:80 --volume &quot;$PWD&quot;:/var/www/html --link wordpressdb:mysql php-demo:1.0
-</code></pre>
-
-<h2 id="toc_6">Docker compose</h2>
-
-<p>编写 docker-compose.yml</p>
-
-<pre><code class="language-yaml">mysql:
-  image: mysql:5.7
-  environment:
-    MYSQL_ROOT_PASSWORD: 123456
-    MYSQL_DATABASE: wordpress
-
-web:
-  image: php-demo:1.0
-  links:
-    - mysql
-  ports:
-    - &quot;7000:80&quot;
-  working_dir: /var/www/html
-  volumes:
-    - /tmp/docker-demo/wordpress:/var/www/html
-</code></pre>
-
-<p>运行</p>
-
-<pre><code class="language-text">docker-compose up
-</code></pre>
-
-<h2 id="toc_7">容器原理</h2>
-
-<h3 id="toc_8">Namespace</h3>
-
-<p>Linux的命名空间技术，用于实现进程、文件、网络等资源的隔离</p>
-
-<h3 id="toc_9">Control Groups CGroup</h3>
-
-<p>控制组，用于限制容器的 cpu、内存、网络等使用</p>
-
-<h3 id="toc_10">UnionFS</h3>
-
-<p>联合挂载技术，Dockfile的每一条文件变更命令都会产生一个 layer 层，即文件读写层。</p>
-
-<p>用于实现 docker 的镜像容器文件等的分层技术</p>
 
 ]]></content>
   </entry>
@@ -1138,6 +1340,1842 @@ otf：是ttf的升级版，测试发现iText框架貌似不支持</p>
 <p>当然了，这软件是收费的。国内开发者，做得挺用心。比如我个人很喜欢的一个小功能是，“在中文和半角的英文、数字之间插入空格”，Github 上也有开源实现，称呼这种空格为盘古白，各编程语言版本都有。与 Word 和手机微信的聊天框显示效果类似。其实代码实现并不复杂，但能从中一窥作者对排版和用户体验的细节追求。</p>
 
 <p>有缘看到的兄弟可以试试。如果软件作者看到了，记得给我打钱啊😆</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[安全]]></title>
+    <link href="https://chenrenyi.github.io/15981025908754.html"/>
+    <updated>2020-08-22T21:23:10+08:00</updated>
+    <id>https://chenrenyi.github.io/15981025908754.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">大纲</h2>
+
+<ul>
+<li>系统设计
+<ul>
+<li>精细化的权限模型</li>
+<li>比如 ID 遍历问题信息泄漏问题</li>
+</ul></li>
+<li>常见安全问题
+<ul>
+<li>见后面详述</li>
+</ul></li>
+<li>环境安全
+<ul>
+<li>比如文件系统权限应精细设置，不能一概 777</li>
+<li>php.ini 设置、mysql 设置应采用安全设置，禁用掉危险函数配置等</li>
+<li>及时打补丁修复漏洞</li>
+<li>框架采用长期版本 LTS 版本</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_1">XSS 跨站脚本 Cross-site scripting</h2>
+
+<p>解决办法：</p>
+
+<ul>
+<li>过滤特殊字符</li>
+<li>使用 HTTP 头指定类型</li>
+</ul>
+
+<h2 id="toc_2">CSRF 跨站请求伪造 Cross-site request forgery</h2>
+
+<p>是攻击者通过一些技术手段欺骗用户的浏览器去访问一个自己曾经认证过的网站并运行一些操作</p>
+
+<p>这利用了 web 中用户身份验证的一个漏洞：简单的身份验证只能保证请求发自某个用户的浏览器，却不能保证请求本身是用户自愿发出的。</p>
+
+<p>解决办法：</p>
+
+<ul>
+<li>检查 Referer 字段</li>
+<li>添加校验 token</li>
+</ul>
+
+<h2 id="toc_3">SQL注入</h2>
+
+<p>扫描工具：sqlmap</p>
+
+<p>解决办法：</p>
+
+<ul>
+<li>参数预绑定，或者使用ORM框架的参数绑定</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Zookeeper]]></title>
+    <link href="https://chenrenyi.github.io/15981025270346.html"/>
+    <updated>2020-08-22T21:22:07+08:00</updated>
+    <id>https://chenrenyi.github.io/15981025270346.html</id>
+    <content type="html"><![CDATA[
+<p>分布式协调框架</p>
+
+<h2 id="toc_0">场景</h2>
+
+<ul>
+<li>数据发布/订阅（配置中心）
+<ul>
+<li>树形结构且节点可存储数据，天然配置中心。</li>
+<li>关注节点以接收通知，然后可以动态获取配置信息</li>
+</ul></li>
+<li>命名服务 / 负载均衡
+<ul>
+<li>生成全局唯一ID</li>
+</ul></li>
+<li>分布式协调/通知</li>
+<li>心跳检测
+<ul>
+<li>A服务创建临时节点，A关闭后临时节点即断掉</li>
+<li>B服务查看有多少临时节点，即知道有多少服务活着</li>
+</ul></li>
+<li>集群管理</li>
+<li>Master选举
+<ul>
+<li>选举时，各备选机器创建一个相同临时的znode</li>
+<li>谁创建成功，谁成为master</li>
+<li>失败的，关注该节点</li>
+<li>若master挂掉，其余节点能够立刻感知，从而重新选举</li>
+</ul></li>
+<li>分布式锁和分布式队列
+<ul>
+<li>排它锁
+<ul>
+<li>临时znode，满足只有一个事务可以获得锁，释放后能通知的功能</li>
+</ul></li>
+<li>共享锁
+<ul>
+<li>创建临时有序znode，value标记为 写、读</li>
+<li>获取读锁：若比当前节点序号小的都是读锁，则认为获取成功</li>
+<li>获取写锁：若自己就是最小节点，则认为获取成功</li>
+<li>否则注册监听事件</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2 id="toc_1">保证的特性</h2>
+
+<ul>
+<li>顺序一致性
+<ul>
+<li>同一客户端发起的请求，会按顺序应用到服务器</li>
+</ul></li>
+<li>原子性
+<ul>
+<li>事务结果在所有机器上一样</li>
+</ul></li>
+<li>单一视图
+<ul>
+<li>客户端连接任意服务器，看到的结果一样</li>
+</ul></li>
+<li>可靠性
+<ul>
+<li>持久化</li>
+</ul></li>
+<li>实时性
+<ul>
+<li>在一定的时候内，能看到最新的数据</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_2">集群角色</h2>
+
+<ul>
+<li>Leader</li>
+<li>Follower</li>
+<li>Observer
+<ul>
+<li>默认无该角色</li>
+<li>可提供读，不提供写</li>
+<li>不参与写的过半写成功策略</li>
+<li>不参与 Leader 选举</li>
+<li>作用：在不影响写的性能下，增加读性能</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_3">数据</h2>
+
+<pre><code class="language-text">[zk: localhost:2181(CONNECTED) 23] get /yarn-leader-election/appcluster-yarn/ActiveBreadCrumb
+
+appcluster-yarnrm1
+cZxid = 0x1b00133dc0    //Created ZXID,表示该ZNode被创建时的事务ID
+ctime = Tue Jan 03 15:44:42 CST 2017    //Created Time,表示该ZNode被创建的时间
+mZxid = 0x1d00000063    //Modified ZXID，表示该ZNode最后一次被更新时的事务ID
+mtime = Fri Jan 06 08:44:25 CST 2017    //Modified Time，表示该节点最后一次被更新的时间
+pZxid = 0x1b00133dc0    //表示该节点的子节点列表最后一次被修改时的事务ID。注意，只有子节点列表变更了才会变更pZxid，子节点内容变更不会影响pZxid。
+cversion = 0    //子节点的版本号
+dataVersion = 11    //数据节点的版本号
+aclVersion = 0    //ACL版本号
+ephemeralOwner = 0x0    //创建该节点的会话的seddionID。如果该节点是持久节点，那么这个属性值为0。
+dataLength = 22    //数据内容的长度
+numChildren = 0    //子节点的个数
+</code></pre>
+
+<h2 id="toc_4">其它概念</h2>
+
+<h3 id="toc_5">Watcher</h3>
+
+<pre><code class="language-text">Watcher（事件监听器），是ZooKeeper中一个很重要的特性。
+ZooKeeper允许用户在指定节点上注册一些Watcher，并且在一些特定事件触发的时候，ZooKeeper服务端会将事件通知到感兴趣的客户端上去。
+该机制是ZooKeeper实现分布式协调服务的重要特性。
+</code></pre>
+
+<h3 id="toc_6">事务</h3>
+
+<p>能改变zookeeper服务器状态的称为事务，如节点创建、删除、更新等。事务号为zxid</p>
+
+<h3 id="toc_7">ACL</h3>
+
+<p>access control Lists 控制权限</p>
+
+<ul>
+<li>CREATE: 创建子节点的权限。</li>
+<li>READ: 获取节点数据和子节点列表的权限。</li>
+<li>WRITE：更新节点数据的权限。</li>
+<li>DELETE: 删除子节点的权限。</li>
+<li>ADMIN: 设置节点ACL的权限。</li>
+</ul>
+
+<h2 id="toc_8">ZAB协议</h2>
+
+<pre><code class="language-text">所有事务请求必须由一个全局唯一的服务器来协调处理，这样的服务器被称为Leader服务器，而剩下的其他服务器则成为Follower服务器。
+Leader服务器负责将一个客户端事务请求转换成一个事务Proposal（提案）并将该Proposal分发给集群中所有的Follower服务器。
+之后Leader服务器需要等待所有Follower服务器的反馈，一旦超过半数的Follower服务器进行了正确的反馈后，
+Leader就会再次向所有的Follower服务器分发Commit消息，要求对刚才的Proposal进行提交。
+</code></pre>
+
+<h3 id="toc_9">读写过程</h3>
+
+<h4 id="toc_10">写Leader</h4>
+
+<ul>
+<li>客户端向Leader发起写请求</li>
+<li>Leader发送提案给所有Follower并等待ACK</li>
+<li>过半Follower回复ACK，Leader自己也有一票ACK，向所有Follower、Observer发送commit</li>
+<li>返回结果给客户端</li>
+</ul>
+
+<h4 id="toc_11">写Follower、Observer</h4>
+
+<ul>
+<li>转发给Leader</li>
+<li>同写Leader</li>
+</ul>
+
+<h4 id="toc_12">读</h4>
+
+<ul>
+<li>直接从本地内存读取后返回</li>
+</ul>
+
+<h3 id="toc_13">选举过程</h3>
+
+<p><a href="https://dbaplus.cn/news-141-1875-1.html">选举过程</a></p>
+
+<h3 id="toc_14">两种模式</h3>
+
+<p><strong>恢复模式</strong></p>
+
+<p>服务启动或Leader挂掉后，进入恢复模式。<br/>
+Leader选举完成，且大部分节点完成状态同步后，退出恢复模式</p>
+<br>
+<p><strong>广播模式</strong></p>
+
+<p>正常维持在广播状态<br/>
+新节点加入时，会在恢复模式下启动，以完成状态同步</p>
+
+<h2 id="toc_15">面试问题</h2>
+
+<h3 id="toc_16">如何保证事务的顺序一致性</h3>
+
+<p>通过事务号zxid，</p>
+
+<ul>
+<li>高32位：世代号，每次出现新Leader即加1</li>
+<li>低32位：每次新事务加1</li>
+</ul>
+
+<h3 id="toc_17">部署模式</h3>
+
+<ul>
+<li>单机</li>
+<li>集群</li>
+<li>伪集群（单机多实例）</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Linux]]></title>
+    <link href="https://chenrenyi.github.io/15981005517872.html"/>
+    <updated>2020-08-22T20:49:11+08:00</updated>
+    <id>https://chenrenyi.github.io/15981005517872.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">lsof（list open files）</h2>
+
+<pre><code class="language-bash"># 查看端口占用
+lsof -i:80
+</code></pre>
+
+<h2 id="toc_1">top</h2>
+
+<p>显示信息：</p>
+
+<ul>
+<li>系统时间</li>
+<li>cpu</li>
+<li>内存</li>
+<li>交换空间</li>
+<li>线程</li>
+</ul>
+
+<pre><code class="language-text">top - 17:19:17 up 1112 days,  6:25,  4 users,  load average: 0.36, 0.34, 0.61
+Tasks: 184 total,   2 running, 181 sleeping,   0 stopped,   1 zombie
+Cpu(s): 14.6%us,  9.2%sy,  5.5%ni, 69.9%id,  0.0%wa,  0.0%hi,  0.2%si,  0.6%st
+Mem:   1927548k total,  1879924k used,    47624k free,   319916k buffers
+Swap:  3145712k total,  1894636k used,  1251076k free,   353284k cached
+
+  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+ 8448 chenreny  20   0  215m  14m 4072 S  5.1  0.8   0:02.99 php-fpm
+ 2755 nobody    30  10  850m 3384 1044 S  4.3  0.2   3845:50 minos-agent-tk
+ 8483 chenreny  20   0  215m  14m 4056 S  4.3  0.8   0:02.83 php-fpm
+ 2546 nobody    30  10  850m 3372 1044 S  4.1  0.2   3855:48 minos-agent
+</code></pre>
+
+<h2 id="toc_2">free</h2>
+
+<p>查看可用内存</p>
+
+<h2 id="toc_3">vmstat</h2>
+
+<p>查看内存信息</p>
+
+<h2 id="toc_4">iostat</h2>
+
+<p>显示io信息，可查看cpu idle信息</p>
+
+<pre><code class="language-text">Linux 2.6.32_1-16-0-0_virtio (cp01-sys-ump-ur-dev14.epc.baidu.com)  11/27/2019  _x86_64_    (1 CPU)
+
+avg-cpu:  %user   %nice %system %iowait  %steal   %idle
+          15.32    3.96    9.74    5.49    4.56   60.92
+
+Device:            tps   Blk_read/s   Blk_wrtn/s   Blk_read   Blk_wrtn
+vda              12.87       625.63       104.02 60056660458 9985065320
+vdb             194.53      1760.93        60.82 169039945506 5838059600
+</code></pre>
+
+<h2 id="toc_5">sar System Activity Reporter（系统活动报告）</h2>
+
+<p>查看系统历史监控信息，比如查看过去一段时间内 idle 变化</p>
+
+<h2 id="toc_6">pstack</h2>
+
+<p>打印内存堆栈信息，用于进程卡死时debug，java 程序可用 jstack</p>
+
+<h2 id="toc_7">文字处理</h2>
+
+<h3 id="toc_8">awk 或 sed</h3>
+
+<pre><code class="language-text">ls -l | awk &#39;{print $1}&#39;
+</code></pre>
+
+<h3 id="toc_9">uniq</h3>
+
+<pre><code class="language-text">uniq testfile # 去重显示
+uniq -c testfile # 去重并显示重复数，重复行不相邻时无效
+uniq -d testfile # 仅显示重复行
+sort  testfile1 | uniq -c
+</code></pre>
+
+<h3 id="toc_10">wget</h3>
+
+<pre><code class="language-text">wc -l testfile # 统计行号
+wc -w testfile # 统计字数
+</code></pre>
+
+<h2 id="toc_11">其它常用</h2>
+
+<p>grep、df、dh、strace（跟踪系统调用）</p>
+
+<h2 id="toc_12">参考资料</h2>
+
+<p><a href="https://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/index.html">工具参考篇</a></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Redis]]></title>
+    <link href="https://chenrenyi.github.io/15980994076315.html"/>
+    <updated>2020-08-22T20:30:07+08:00</updated>
+    <id>https://chenrenyi.github.io/15980994076315.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">数据类型和命令</h2>
+
+<h3 id="toc_1">string</h3>
+
+<pre><code class="language-text">set
+get
+</code></pre>
+
+<h3 id="toc_2">list</h3>
+
+<pre><code class="language-text">lpush
+lpop
+rpush
+rpop
+</code></pre>
+
+<p>底层实现是链表，量少时为zipset，即数组的连续区域。量大时为quickset，即将多个zipset用指针连接起来</p>
+
+<h3 id="toc_3">hash</h3>
+
+<pre><code class="language-text">hset
+hget
+</code></pre>
+
+<h3 id="toc_4">set</h3>
+
+<pre><code class="language-text">sadd
+smembers
+</code></pre>
+
+<h3 id="toc_5">sortedset</h3>
+
+<pre><code class="language-text">zadd
+zrange
+</code></pre>
+
+<p>底层实现为跳跃列表，跳表</p>
+
+<h2 id="toc_6">跳表</h2>
+
+<p>个人总结：</p>
+
+<ul>
+<li>首先是一个有序链表</li>
+<li>为了提高查询速度，给每个节点增加多个索引，指向更后面的节点。由O(n) ——&gt; O(log(n))</li>
+<li>抛硬币决定加几层索引，即第一层100%，第二层50%，第三层25%...</li>
+</ul>
+
+<p>为啥不用平衡树（平衡排序树）：</p>
+
+<ul>
+<li>插入删除不用调整子树，更简单迅速</li>
+<li>范围查找比平衡树好</li>
+<li>算法实现简单</li>
+</ul>
+
+<p><img src="media/15980994076315/%E8%B7%B3%E8%A1%A8.svg" alt="跳表"/></p>
+
+<h2 id="toc_7">集群模式</h2>
+
+<h3 id="toc_8">主从复制</h3>
+
+<p>介绍：</p>
+
+<ul>
+<li>主服务器读写</li>
+<li>从服务器备份，提供读</li>
+</ul>
+
+<p>特点：</p>
+
+<ul>
+<li>读写分离</li>
+<li>容灾恢复</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+<li>写能力未提高</li>
+<li>不支持自动恢复</li>
+<li>故障时可能有部分数据未同步</li>
+</ul>
+
+<h3 id="toc_9">哨兵模式</h3>
+
+<p>带哨兵的主从复制模式，可以自动切换master</p>
+
+<h3 id="toc_10">集群模式</h3>
+
+<p>分布式的多节点<br/>
+每个节点带从节点，带监控模式，可以自动切换 master</p>
+
+<h2 id="toc_11">应用场景</h2>
+
+<ul>
+<li>分布式缓存</li>
+<li>分布式锁</li>
+</ul>
+
+<h2 id="toc_12">参考文章：</h2>
+
+<p><a href="https://juejin.im/post/5b53ee7e5188251aaa2d2e16">通俗易懂的Redis数据结构基础教程</a></p>
+
+<p><a href="https://lotabout.me/2018/skip-list/">跳表──没听过但很犀利的数据结构</a></p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Java基础]]></title>
+    <link href="https://chenrenyi.github.io/15980638067464.html"/>
+    <updated>2020-08-22T10:36:46+08:00</updated>
+    <id>https://chenrenyi.github.io/15980638067464.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">String</h2>
+
+<p>StringBuffer：线程安全<br/>
+StringBuilder：线程不安全</p>
+
+<h2 id="toc_1">集合</h2>
+
+<p><img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly9pbWcyMDE4LmNuYmxvZ3MuY29tL290aGVyLzE0MDgxODMvMjAxOTExLzE0MDgxODMtMjAxOTExMTkxODQxNDk1NTktMTU3MTU5NTY2OC5qcGc?x-oss-process=image/format,png" alt=""/></p>
+
+<h3 id="toc_2">List</h3>
+
+<ul>
+<li>ArrayList</li>
+<li>LinkedList</li>
+<li>CopyOnWriteList</li>
+<li>Collections.synchronizedList 内部包装类，用sync修饰方法</li>
+</ul>
+
+<h3 id="toc_3">Set</h3>
+
+<ul>
+<li>HashSet 基于HashMap</li>
+<li>TreeSet 基于TreeMap</li>
+</ul>
+
+<h3 id="toc_4">Map</h3>
+
+<p><img src="media/15980638067464/15980649696422.jpg" alt=""/></p>
+
+<h4 id="toc_5">HashMap</h4>
+
+<p><strong>特点</strong></p>
+
+<ul>
+<li>允许null值、null键</li>
+<li>线程不安全</li>
+</ul>
+
+<p><strong>旧版底层实现</strong></p>
+
+<ul>
+<li>哈希表 + 链表</li>
+</ul>
+
+<p><strong>新版底层实现</strong></p>
+
+<ul>
+<li>哈希表 + 链表</li>
+<li>链表长度大于8时，转化为红黑树（避免严重哈希冲突时，性能退化为单链表）</li>
+</ul>
+
+<p><strong>长度为啥是2的次方</strong></p>
+
+<pre><code class="language-text">1、取余(%)操作中如果除数是2的幂次则等价于与其除数减一的与(&amp;)操作
+2、HashMap的key的hash采用上述方法，性能更高
+3、所以分布在2的次方空间，长度取2的次方分布才均匀
+</code></pre>
+
+<h4 id="toc_6">ConcurrentHashMap</h4>
+
+<p><strong>特点</strong><br/>
+线程安全的HashMap</p>
+
+<p><strong>版本1.7底层实现</strong><br/>
+进一步采用分段的方式，每段配置一个锁。Segment继承自ReentranLock<br/>
+<img src="https://imgconvert.csdnimg.cn/aHR0cHM6Ly91c2VyLWdvbGQtY2RuLnhpdHUuaW8vMjAxOC84LzIzLzE2NTY2NzdhNmYwMDhiZTQ?x-oss-process=image/format,png" alt=""/></p>
+
+<p><strong>版本1.8底层实现</strong><br/>
+抛弃了分段方式，使用自旋锁 + Sychronized 方式来保证并发安全<br/>
+put时，若key对应的value为null，通过cas保证写入成功，否则加Sychronized锁</p>
+
+<p>对于读操作，由于数组被volatile关键字修饰，因此不用担心数组的可见性问题。同时每个元素是一个Node实例（Java 7中每个元素是一个HashEntry），它的Key值和hash值都由final修饰，不可变更，无须关心它们被修改后的可见性问题。而其Value及对下一个元素的引用由volatile修饰，可见性也有保障。</p>
+
+<pre><code class="language-text">static class Node&lt;K,V&gt; implements Map.Entry&lt;K,V&gt; {
+  final int hash;
+  final K key;
+  volatile V val;
+  volatile Node&lt;K,V&gt; next;
+}
+</code></pre>
+
+<p>对于Key对应的数组元素的可见性，由Unsafe的getObjectVolatile方法保证。</p>
+
+<pre><code class="language-text">static final &lt;K,V&gt; Node&lt;K,V&gt; tabAt(Node&lt;K,V&gt;[] tab, int i) {
+  return (Node&lt;K,V&gt;)U.getObjectVolatile(tab, ((long)i &lt;&lt; ASHIFT) + ABASE);
+}
+</code></pre>
+
+<h4 id="toc_7">TreeMap</h4>
+
+<p>红黑树，Node.Key 即为 key，Node.value 即为 value</p>
+
+<p>因此：</p>
+
+<ul>
+<li>不允许重复Key</li>
+<li>可以排序，需要实验Compartable</li>
+</ul>
+
+<h3 id="toc_8">BlockingQueue</h3>
+
+<p>阻塞队列，用于生产者消费者</p>
+
+<ul>
+<li>ArrayBlockingQueue (ReentrantLock.Condition来实现）</li>
+<li>LinkedBlockingQueue</li>
+<li>PriorityBlockingQueue 优先级队列</li>
+<li>DelayQueue 延时队列</li>
+<li>SynchronousQueue （无缓存，生产者直接对接消费者）</li>
+</ul>
+
+<h2 id="toc_9">异常</h2>
+
+<p><img src="https://img-blog.csdnimg.cn/20200314173417278.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1RoaW5rV29u,size_16,color_FFFFFF,t_70" alt=""/></p>
+
+<h3 id="toc_10">try-with-resource</h3>
+
+<p>自动关闭资源，需要实现AutoCloseAble接口</p>
+
+<pre><code class="language-java">try (Scanner scanner = new Scanner(new FileInputStream(&quot;c:/abc&quot;),&quot;UTF-8&quot;)){
+    // code
+} catch (IOException e){
+    // handle exception
+}
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Java并发]]></title>
+    <link href="https://chenrenyi.github.io/15980740537693.html"/>
+    <updated>2020-08-22T13:27:33+08:00</updated>
+    <id>https://chenrenyi.github.io/15980740537693.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">概念</h2>
+
+<h3 id="toc_1">并发编程三要素：</h3>
+
+<ul>
+<li>原子性：要么成功要么失败</li>
+<li>可见性：线程A修改完变量后，线程B能否感知</li>
+<li>有序性：指令执行顺序</li>
+</ul>
+
+<h3 id="toc_2">Java内存模型</h3>
+
+<p>即Java虚拟机的内存规范，用于屏蔽各操作系统和平台间的差异</p>
+
+<p>具体内容：</p>
+
+<ul>
+<li>变量在主存中（内存）</li>
+<li>线程有自己的工作内存（类似高速缓存）</li>
+<li>线程对变量操作只能在自身工作内存中执行，不能直接操作主存</li>
+</ul>
+
+<p>内存模型关于三要素的保证：</p>
+
+<ul>
+<li>原子性
+<ul>
+<li>简单类型的赋值才是原子操作（x = 10 是，x = y 不是）</li>
+</ul></li>
+<li>可见性
+<ul>
+<li>不保证，需要使用volatile关键字</li>
+</ul></li>
+<li>有序性
+<ul>
+<li>允许使用指令重排序，对单线程无影响，对多线程会造成影响</li>
+<li>能够保证的有：
+<ul>
+<li>保证单线程内指令重排序对最终结果无影响（也即实际执行顺序可能会变，但结果不变）</li>
+<li>若 unlock 写在前面，lock写在后面，不会重排序造成lock在前</li>
+<li>volatile变量，对它的先写后读操作，不会重排序成先读后写</li>
+<li>线程4个顺序，不重要</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h3 id="toc_3">指令重排序</h3>
+
+<p>操作系统为了性能优化，实际执行指令的顺序可能与书写顺序不一致</p>
+
+<p>这种优化不会改变单线程的实际执行结果，但对多线程有影响</p>
+
+<p>举例：</p>
+
+<pre><code class="language-java">x = y;
+z = 1;
+z++;
+x = x + z
+</code></pre>
+
+<pre><code class="language-text">对应cpu行为，x = y，去内存中取y的值，较慢
+z = 1;z++;
+可能对应设置寄存器为1，寄存器进行加1操作。
+显然，等待 x = y的这段时间，先做后面两行代码操作是没问题的
+</code></pre>
+
+<h2 id="toc_4">Volatile</h2>
+
+<p><strong>作用</strong></p>
+
+<ul>
+<li>禁止指令重排序
+<ul>
+<li>当程序执行到volatile变量的读或写时，保证前面的读写已发生且已可见，后面的读写未发生</li>
+<li>书写顺序在volatile变量操作前面的指令不会排到后面，反之一样</li>
+</ul></li>
+<li>只保证可见性，不保证原子性</li>
+</ul>
+
+<p><strong>实现原理</strong><br/>
+内存屏障，估计是cpu提供的功能：</p>
+
+<ul>
+<li>禁止指令重排序，同上</li>
+<li>写操作立即刷新进主内存</li>
+<li>线程的读volatile变量操作，不会使用高速缓存，而是会去主存再读一遍</li>
+</ul>
+
+<p><strong>场景举例</strong></p>
+
+<pre><code class="language-java">//线程1
+volatile boolean stop = false;
+while(!stop){
+    doSomething();
+}
+ 
+//线程2
+stop = true;
+</code></pre>
+
+<h2 id="toc_5">锁</h2>
+
+<h3 id="toc_6">概念</h3>
+
+<ul>
+<li>可重入锁
+<ul>
+<li>内部可以再次进入</li>
+<li>假如用变量 x 来表示，进入锁即加1，超过1即不能再进入锁。那么已经获得锁的方法，递归调用自己，是不能获得锁的，即为不可重入锁。反之为可重入锁。</li>
+</ul></li>
+<li>公平锁：先等锁的先获得锁</li>
+<li>非公平锁：等待队列上的线程，不分先后顺序，每次有机会时都随机指定一个</li>
+<li>自旋锁：拿不到锁时不是线程阻塞，而是空白死循环去一直拿</li>
+<li>乐观锁：默认无冲突，先操作再检测冲突</li>
+<li>悲观锁：默认有冲突，先加锁再操作</li>
+<li>独占锁：ReentrantLock/Synchronized</li>
+<li>共享锁：ReentrantReadWriteLock，读锁为共享锁，写锁为独占锁</li>
+</ul>
+
+<h3 id="toc_7">Synchronized</h3>
+
+<h4 id="toc_8">特性</h4>
+
+<ul>
+<li>可重入</li>
+<li>抛出异常会自动释放锁</li>
+</ul>
+
+<h4 id="toc_9">版本差异</h4>
+
+<p>版本1.6及之前</p>
+
+<pre><code class="language-text">调用操作系统原生方法进行同步控制
+</code></pre>
+
+<p>版本1.6之后</p>
+
+<ul>
+<li>分为无状态锁、偏向锁、轻量级锁、重量级锁
+<ul>
+<li>默认用开销少的锁，竞争大的时候再升级，少的时候降级。因而可以优化性能</li>
+</ul></li>
+<li>锁粗化，即合并加锁</li>
+<li>锁消除，判断代码有没有线程外的变量，来判断是否需要加锁</li>
+<li>适应性自旋，即成功过一下一次循环就久一点，否则就短一点</li>
+</ul>
+
+<h4 id="toc_10">单例模式</h4>
+
+<pre><code class="language-java">public class Singleton {
+
+    private volatile static Singleton uniqueInstance;
+
+    private Singleton() {
+    }
+
+    public static Singleton getUniqueInstance() {
+       //先判断对象是否已经实例过，没有实例化过才进入加锁代码
+        if (uniqueInstance == null) {
+            //类对象加锁
+            synchronized (Singleton.class) {
+                if (uniqueInstance == null) {
+                    uniqueInstance = new Singleton();
+                }
+            }
+        }
+        return uniqueInstance;
+    }
+}
+</code></pre>
+
+<pre><code class="language-text">volatile阻止的不是singleton = newSingleton()这句话内部[分配空间、初始化、赋值]的指令重排，而是保证了在一个写操作（[1-2-3]）完成之前，不会调用读操作（if (instance == null)）
+</code></pre>
+
+<h3 id="toc_11">Lock</h3>
+
+<h4 id="toc_12">ReadWriteLock</h4>
+
+<p>读写锁</p>
+
+<h4 id="toc_13">ReentrantLock - 排它锁</h4>
+
+<p><strong>支持公平与非公平</strong></p>
+
+<pre><code class="language-java">// 构造参数：isFair
+Lock NonFairlock = new ReentrantLock(false);
+Lock fairLock = new ReentrantLock(true);
+</code></pre>
+<br>
+<p><strong>生产者消费者示例</strong></p>
+
+<pre><code class="language-java">// 馒头生产消费示例
+package cn.chenrenyi.start;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * @author chenrenyi
+ **/
+public class ProductAndConsumeQueue {
+
+    public List&lt;Integer&gt; queue;
+
+    private int maxQueueSize;
+
+    private Lock lock;
+
+    private Condition notFull;
+
+    private Condition notEmpty;
+
+    public ProductAndConsumeQueue(int maxQueueSize) {
+        this.queue = new ArrayList&lt;&gt;();
+        this.maxQueueSize = maxQueueSize;
+        this.lock = new ReentrantLock(true);
+        this.notFull = lock.newCondition();
+        this.notEmpty = lock.newCondition();
+    }
+
+    public void push() {
+        try {
+            lock.lock();
+            while (queue.size() == maxQueueSize) {
+                try {
+                    // wait until not full
+                    System.out.println(&quot;队列已满，生产者休眠中，等待队列不满再生产&quot;);
+                    notFull.await();
+                    System.out.println(&quot;生产者被唤醒&quot;);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // start to push because of not empty
+            queue.add(new Random().nextInt());
+            System.out.println(&quot;生产者生产了馒头&quot;);
+
+            // signal to public that queue is not empty now.
+            notEmpty.signal();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void pop() {
+        try {
+            lock.lock();
+            while (queue.size() == 0) {
+                try {
+                    // wait until not empty
+                    System.out.println(&quot;队列已空，消费者进入休眠，等待队列不空时再消费&quot;);
+                    notEmpty.await();
+                    System.out.println(&quot;消费者被唤醒&quot;);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // start to push because of not empty
+            queue.remove(0);
+            System.out.println(&quot;消费了馒头&quot;);
+
+            // signal to public that queue is not full now.
+            notFull.signal();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public static void test() {
+        ProductAndConsumeQueue queue = new ProductAndConsumeQueue(4);
+
+        Runnable productor = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    queue.push();
+                }
+            }
+        };
+
+        Runnable consumer = new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    queue.pop();
+                }
+            }
+        };
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        executorService.execute(productor);
+        executorService.execute(consumer);
+        executorService.shutdown();
+    }
+}
+</code></pre>
+
+<h3 id="toc_14">相关类</h3>
+
+<h4 id="toc_15">Atomic</h4>
+
+<pre><code class="language-java">包：java.util.concurrent.atomic
+示例：AtomicInteger.incrementAndGet()
+</code></pre>
+<br>
+<p><strong>实现原理</strong><br/>
+自旋加CAS+volatile：<code>while(cas(old, new)){}</code></p>
+
+<p><strong>CAS</strong><br/>
+compare and swap，cpu提供的指令，比较并替换。上述类的原理。</p>
+
+<p><strong>ABA问题</strong><br/>
+线程1将变量替换2，线程2又替换为1，线程3以为没变其实已经变过一轮了<br/>
+解决方法：</p>
+
+<ul>
+<li>AtomicStampedReference：版本号解决，对原数加1时，对版本号也加1</li>
+</ul>
+
+<h4 id="toc_16">并发工具包</h4>
+
+<ul>
+<li>Semaphore（信号量）-允许多个线程同时访问</li>
+<li>CountDownLatch（倒计时器）
+<ul>
+<li>一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行</li>
+</ul></li>
+<li>CyclicBarrier（循环栅栏）
+<ul>
+<li>一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_17">线程</h2>
+
+<h3 id="toc_18">线程池</h3>
+
+<p>构造函数</p>
+
+<pre><code class="language-java">/**
+ * Creates a new {@code ThreadPoolExecutor} with the given initial
+ * parameters.
+ *
+ * @param corePoolSize the number of threads to keep in the pool, even
+ *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+ * @param maximumPoolSize the maximum number of threads to allow in the
+ *        pool
+ * @param keepAliveTime when the number of threads is greater than
+ *        the core, this is the maximum time that excess idle threads
+ *        will wait for new tasks before terminating.
+ * @param unit the time unit for the {@code keepAliveTime} argument
+ * @param workQueue the queue to use for holding tasks before they are
+ *        executed.  This queue will hold only the {@code Runnable}
+ *        tasks submitted by the {@code execute} method.
+ * @param threadFactory the factory to use when the executor
+ *        creates a new thread
+ * @param handler the handler to use when execution is blocked
+ *        because the thread bounds and queue capacities are reached
+ * @throws IllegalArgumentException if one of the following holds:&lt;br&gt;
+ *         {@code corePoolSize &lt; 0}&lt;br&gt;
+ *         {@code keepAliveTime &lt; 0}&lt;br&gt;
+ *         {@code maximumPoolSize &lt;= 0}&lt;br&gt;
+ *         {@code maximumPoolSize &lt; corePoolSize}
+ * @throws NullPointerException if {@code workQueue}
+ *         or {@code threadFactory} or {@code handler} is null
+ */
+public ThreadPoolExecutor(int corePoolSize, 
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          @NotNull TimeUnit unit,
+                          @NotNull BlockingQueue&lt;Runnable&gt; workQueue,
+                          @NotNull ThreadFactory threadFactory,
+                          @NotNull RejectedExecutionHandler handler
+</code></pre>
+
+<h4 id="toc_19">失败处理策略</h4>
+
+<pre><code class="language-text">AbortPolicy：A handler for rejected tasks that throws a RejectedExecutionException
+
+DiscardPolicy：A handler for rejected tasks that silently discards the rejected task
+
+DiscardOldestPolicy：A handler for rejected tasks that discards the oldest unhandled request and then retries execute, unless the executor is shut down, in which case the task is discarded.
+
+CallerRunsPolicy：A handler for rejected tasks that runs the rejected task directly in the calling thread of the execute method, unless the executor has been shut down, in which case the task is discarded.
+</code></pre>
+
+<h4 id="toc_20">线程池种类</h4>
+
+<p>newSingleThreadExecutor：单线程，无限队列，不回收</p>
+
+<pre><code class="language-java">public static ExecutorService newSingleThreadExecutor() {
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue&lt;Runnable&gt;()));
+    }
+</code></pre>
+
+<p>newFixedThreadPool：固定线程数，无限队列，不回收</p>
+
+<pre><code class="language-java">public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue&lt;Runnable&gt;());
+    }
+</code></pre>
+
+<p>newScheduledThreadPool：延迟或周期执行任务。</p>
+
+<pre><code class="language-java">public ScheduledThreadPoolExecutor(int corePoolSize) {
+        super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
+              new DelayedWorkQueue());
+    }
+</code></pre>
+
+<p>newCachedThreadPool</p>
+
+<pre><code class="language-java">// 无限队列，动态创建，60秒空闲即回收。使用同步队列 SynchronousQueue，提交任务操作会阻塞直到线程创建好并取出任务
+public static ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                      60L, TimeUnit.SECONDS,
+                                      new SynchronousQueue&lt;Runnable&gt;());
+    }
+</code></pre>
+
+<pre>
+newWorkStealingPool：ForkJoinPool，1.7之后新增
+</pre>
+
+<h3 id="toc_21">ThreadLocal</h3>
+
+<p>线程本地变量，线程内可见，线程外不可见</p>
+
+<pre><code class="language-java">// 创建
+ThreadLocal&lt;String&gt; mStringThreadLocal = new ThreadLocal&lt;&gt;();
+ThreadLocal&lt;String&gt; mThreadLocal = new ThreadLocal&lt;String&gt;() {
+    @Override
+    protected String initialValue() {
+      return Thread.currentThread().getName();
+    }
+};
+
+// 使用
+mStringThreadLocal.set(&quot;chenrenyi&quot;);
+mStringThreadLocal.get();
+</code></pre>
+
+<p><strong>Set 创建过程</strong>：</p>
+
+<ul>
+<li>首先获取当前线程的成员变量：threadLocals，类型：ThreadLocalMap</li>
+<li>如果上述ThreadLocalMap对象不为空，则设置值，否则创建这个ThreadLocalMap对象并设置值</li>
+<li>以当前 ThreadLocal 对象为 key，set 的参数值为值</li>
+</ul>
+
+<p>即创建一个 ThreadLocalMap ，再赋值给 Thread.threadLocals 属性上。map 的 key 为创建的 ThreadLocal 对象，值为值。其中 key 弱引用，避免内存泄漏</p>
+
+<p><strong>为何只在线程内可见</strong>：</p>
+
+<p>因为 threadLocalMap 是 thread 的一个成员变量，而每个 thread 的成员变量自然不一样，所以只在线程内可见</p>
+
+<p><strong>对象存放在哪里</strong>：</p>
+
+<p>堆上</p>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Java Jvm]]></title>
+    <link href="https://chenrenyi.github.io/15980814209679.html"/>
+    <updated>2020-08-22T15:30:20+08:00</updated>
+    <id>https://chenrenyi.github.io/15980814209679.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">组成</h2>
+
+<h3 id="toc_1">JVM组成</h3>
+
+<p>两个子系统：</p>
+
+<ul>
+<li>类加载</li>
+<li>执行引擎</li>
+</ul>
+
+<p>两个组件：</p>
+
+<ul>
+<li>运行时数据区 - JVM内存区域</li>
+<li>本地方法接口</li>
+</ul>
+
+<p><img src="https://img-blog.csdnimg.cn/20200103213149526.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly90aGlua3dvbi5ibG9nLmNzZG4ubmV0,size_16,color_FFFFFF,t_70" alt=""/></p>
+
+<h3 id="toc_2">JVM内存结构 - 运行时数据区 组成</h3>
+
+<h4 id="toc_3">概述</h4>
+
+<ul>
+<li>堆内存
+<ul>
+<li>年轻代
+<ul>
+<li>edenSpace</li>
+<li>FromSpace</li>
+<li>ToSpace</li>
+</ul></li>
+<li>老年代</li>
+</ul></li>
+<li>方法区
+<ul>
+<li>线程共享，保存类、常量、静态变量等数据</li>
+</ul></li>
+<li>虚拟机栈</li>
+<li>本地方法栈</li>
+<li>程序计数器</li>
+</ul>
+
+<p><img src="media/15980814209679/15980817654033.jpg" alt=""/></p>
+
+<p><img src="media/15980814209679/15980819260266.jpg" alt=""/></p>
+
+<p>大小参数控制：</p>
+
+<ul>
+<li>-Xms设置堆的最小空间大小。</li>
+<li>-Xmx设置堆的最大空间大小。</li>
+<li>-XX:NewSize设置新生代最小空间大小。</li>
+<li>-XX:MaxNewSize设置新生代最大空间大小。</li>
+<li>-XX:PermSize设置永久代最小空间大小。</li>
+<li>-XX:MaxPermSize设置永久代最大空间大小。</li>
+<li>-Xss设置每个线程的堆栈大小。</li>
+</ul>
+
+<h4 id="toc_4">堆</h4>
+
+<p>几乎所有的对象实例都在这里分配内存</p>
+
+<h4 id="toc_5">方法区</h4>
+
+<p>各线程共享</p>
+
+<p><strong>1.6及之前版本</strong></p>
+
+<ul>
+<li>类信息、类方法等</li>
+<li>运行时常量池（包含字符串常量池）</li>
+<li>静态变量和全局变量等</li>
+<li>符号引用</li>
+</ul>
+
+<p><strong>1.7版本</strong></p>
+
+<ul>
+<li>静态变量和字符串常量池被移到堆中</li>
+<li>符号引用被移到本地堆中</li>
+</ul>
+
+<p><strong>1.8版本</strong></p>
+
+<ul>
+<li>基本上只包含类信息</li>
+</ul>
+
+<p><img src="media/15980814209679/15980825256187.jpg" alt=""/></p>
+
+<h4 id="toc_6">程序计数器</h4>
+
+<p>同汇编中的 PC 寄存器，存储下一条要执行的指令位置，理论上每个线程需要有一个</p>
+
+<h4 id="toc_7">JVM栈</h4>
+
+<p>每个方法被执行的时候都会同时创建一个栈帧（Stack Frame）用于存储局部变量表、操作栈、动态链接、方法出口等信息。</p>
+
+<p>每一个方法被调用直至执行完成的过程，就对应着一个栈帧在虚拟机栈中从入栈到出栈的过程。</p>
+
+<p><strong>局部变量表</strong></p>
+
+<ul>
+<li>基本类型的局部变量</li>
+<li>非基本类型对象的引用指针</li>
+</ul>
+
+<h4 id="toc_8">关于永久代、方法区、元空间</h4>
+
+<p><strong>1.7 版本前：</strong></p>
+
+<p>从HotSpot虚拟机实现上来说，方法区存在于永久代中。从规范上来讲没有永久代这一概念。</p>
+
+<p>永久代的历史原因是：HotSpot虚拟机的实现上，无论老年代、还是方法区内存满了，都会触发方法区和老年代的GC，因此称之为永久代</p>
+
+<p>永久代与堆隔离，但物理内存上连续</p>
+
+<p><strong>1.8 版本：</strong></p>
+
+<p>方法区存在于元空间中，元空间存在于本地内存中</p>
+
+<ul>
+<li><p>-XX:MetaspaceSize，class metadata的初始空间配额，以bytes为单位，达到该值就会触发垃圾收集进行类型卸载，同时GC会对该值进行调整：如果释放了大量的空间，就适当的降低该值；如果释放了很少的空间，那么在不超过MaxMetaspaceSize（如果设置了的话），适当的提高该值。</p></li>
+<li><p>-XX：MaxMetaspaceSize，可以为class metadata分配的最大空间。默认是没有限制的。</p></li>
+<li><p>-XX：MinMetaspaceFreeRatio，在GC之后，最小的Metaspace剩余空间容量的百分比，减少为class metadata分配空间导致的垃圾收集。</p></li>
+<li><p>-XX:MaxMetaspaceFreeRatio，在GC之后，最大的Metaspace剩余空间容量的百分比，减少为class metadata释放空间导致的垃圾收集。</p></li>
+</ul>
+
+<p><strong>为什么替代</strong></p>
+
+<p>旧方法中，永久代大小由 -XX:PermSize，-XX:MaxPermSize指定，无法准确知道该设置的合适值。</p>
+
+<p>新方法中，元空间移到了本地内存，可以由系统实际剩余内存控制</p>
+
+<h2 id="toc_9">类加载机制</h2>
+
+<p><img src="https://img-blog.csdnimg.cn/2020031416414486.jpeg?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L1RoaW5rV29u,size_16,color_FFFFFF,t_70" alt=""/></p>
+
+<h4 id="toc_10">加载过程</h4>
+
+<p><img src="media/15980814209679/15980830126011.jpg" alt=""/></p>
+
+<p><strong>加载：加载对应的.class文件，并分配内存和对象</strong></p>
+
+<ul>
+<li><p>通过一个类的全限定名来获取其定义的二进制字节流。</p></li>
+<li><p>将这个字节流所代表的静态存储结构转化为方法区的运行时数据结构。</p></li>
+<li><p>在Java堆中生成一个代表这个类的 java.lang.Class对象，作为对方法区中这些数据的访问入口。</p></li>
+</ul>
+
+<p><strong>验证：验证类格式是否合法</strong></p>
+
+<ul>
+<li><p>文件格式验证：验证字节流是否符合Class文件格式的规范；例如：是否以 0xCAFEBABE开头、主次版本号是否在当前虚拟机的处理范围之内、常量池中的常量是否有不被支持的类型。</p></li>
+<li><p>元数据验证：对字节码描述的信息进行语义分析（注意：对比javac编译阶段的语义分析），以保证其描述的信息符合Java语言规范的要求；例如：这个类是否有父类，除了 java.lang.Object之外。</p></li>
+<li><p>字节码验证：通过数据流和控制流分析，确定程序语义是合法的、符合逻辑的。</p></li>
+<li><p>符号引用验证：确保解析动作能正确执行。</p></li>
+</ul>
+
+<p><strong>准备：为类的静态变量分配内存，并将其初始化为默认值</strong></p>
+
+<ul>
+<li><p>准备阶段是正式为类变量分配内存并设置类变量初始值的阶段，这些内存都将在方法区中分配。对于该阶段有以下几点需要注意：</p></li>
+<li><p>这时候进行内存分配的仅包括类变量（static），而不包括实例变量，实例变量会在对象实例化时随着对象一块分配在Java堆中。</p></li>
+<li><p>这里所设置的初始值通常情况下是数据类型默认的零值（如0、0L、null、false等），而不是被在Java代码中被显式地赋予的值</p></li>
+<li><p>public static int value = 3，准备后其值为 0</p></li>
+<li><p>public final static int value = 3，准备后其值为 3</p></li>
+</ul>
+
+<p><strong>解析：把类中的符号引用转换为直接引用</strong></p>
+
+<ul>
+<li><p>解析阶段是虚拟机将常量池内的符号引用替换为直接引用的过程，解析动作主要针对类或接口、字段、类方法、接口方法、方法类型、方法句柄和调用点限定符7类符号引用进行。符号引用就是一组符号来描述目标，可以是任何字面量。</p></li>
+<li><p>直接引用就是直接指向目标的指针、相对偏移量或一个间接定位到目标的句柄</p></li>
+</ul>
+
+<p><strong>初始化：为静态成员变量赋予初始值</strong></p>
+
+<p>初始化，为类的<strong>静态变量</strong>赋予正确的初始值，JVM负责对类进行初始化，主要对类变量进行初始化。在Java中对类变量进行初始值设定有两种方式：</p>
+
+<ol>
+<li>声明类变量是指定初始值</li>
+<li>使用静态代码块为类变量指定初始值</li>
+</ol>
+
+<p>JVM初始化步骤</p>
+
+<ol>
+<li>假如这个类还没有被加载和连接，则程序先加载并连接该类</li>
+<li>假如该类的直接父类还没有被初始化，则先初始化其直接父类</li>
+<li>假如类中有初始化语句，则系统依次执行这些初始化语句</li>
+</ol>
+
+<p>类初始化时机：只有当对类的主动使用的时候才会导致类的初始化，类的主动使用包括以下六种：</p>
+
+<ul>
+<li>创建类的实例，也就是new的方式</li>
+<li>访问某个类或接口的静态变量，或者对该静态变量赋值</li>
+<li>调用类的静态方法</li>
+<li>反射（如 Class.forName(“com.shengsiyuan.Test”)）</li>
+<li>初始化某个类的子类，则其父类也会被初始化</li>
+<li>Java虚拟机启动时被标明为启动类的类（ JavaTest），直接使用 java.exe命令来运行某个主类</li>
+</ul>
+
+<p><strong>注意</strong><br/>
+类的非静态成员变量，只有在创建实例时，才会被初始化到堆中</p>
+
+<h4 id="toc_11">加载器</h4>
+
+<p><img src="media/15980814209679/15980841148150.jpg" alt=""/></p>
+
+<p><strong>启动类加载器</strong>： BootstrapClassLoader，加载虚拟机类库，本地方法<br/>
+<strong>扩展类加载器</strong>： ExtensionClassLoader，加载系统类库<br/>
+<strong>应用程序类加载器</strong>：ApplicationClassLoader，加载用户类的路径</p>
+
+<h4 id="toc_12">加载机制</h4>
+
+<p><strong>全盘负责</strong><br/>
+当一个类加载器负责加载某个Class时，该Class所依赖的和引用的其他Class也将由该类加载器负责载入，除非显示使用另外一个类加载器来载入</p>
+
+<p><strong>双亲委派</strong><br/>
+先让父类加载器试图加载该类，只有在父类加载器无法加载该类时才尝试从自己的类路径中加载该类</p>
+
+<p><strong>缓存机制</strong><br/>
+缓存机制将会保证所有加载过的Class都会被缓存，当程序中需要使用某个Class时，类加载器先从缓存区寻找该Class，只有缓存区不存在，系统才会读取该类对应的二进制数据，并将其转换成Class对象，存入缓存区。这就是为什么修改了Class后，必须重启JVM，程序的修改才会生效</p>
+
+<h2 id="toc_13">垃圾回收算法</h2>
+
+<h3 id="toc_14">对象存活判断</h3>
+
+<p><strong>引用计数</strong>：<br/>
+有循环引用问题</p>
+
+<p><strong>可达性分析</strong><br/>
+GC Roots：</p>
+
+<ul>
+<li>虚拟机栈中引用的对象。</li>
+<li>本地方法栈中JNI引用的对象。</li>
+<li>方法区中类静态属性实体引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+</ul>
+
+<h3 id="toc_15">垃圾收集算法</h3>
+
+<h4 id="toc_16">标记 - 清除算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>标记不需要的对象</li>
+<li>清除</li>
+</ul>
+
+<p>特点：</p>
+
+<ul>
+<li>标记效率不高</li>
+<li>清除后产生大量内存碎片</li>
+</ul>
+
+<h4 id="toc_17">复制算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>内存分为两块</li>
+<li>将一块中的存活对象，复制到另一半</li>
+</ul>
+
+<p>特点：</p>
+
+<ul>
+<li>没有内存碎片</li>
+<li>内存利用率不高</li>
+<li>存活对象多时要复制大量数据，性能慢。适合于新生代，存活对象很少的情况</li>
+</ul>
+
+<h4 id="toc_18">标记 - 压缩/整理算法</h4>
+
+<p>过程：</p>
+
+<ul>
+<li>标记</li>
+<li>向一端移动</li>
+</ul>
+
+<h4 id="toc_19">分代收集算法</h4>
+
+<p>即根据新生代、老年代特性，采用不同的收集算法</p>
+
+<h3 id="toc_20">垃圾收集器</h3>
+
+<h4 id="toc_21">Serial收集器</h4>
+
+<p>最古老版本</p>
+
+<p>特点：</p>
+
+<ul>
+<li>单线程回收</li>
+<li>新生代复制，老年代标记-压缩</li>
+<li>过程中 STW</li>
+</ul>
+
+<p>使用：-XX:+UseSerialGC</p>
+
+<h4 id="toc_22">ParNew收集器</h4>
+
+<p>Serial收集器并行版本</p>
+
+<p>特点：</p>
+
+<ul>
+<li>新生代多线程复制</li>
+<li>老年代串行标记-压缩</li>
+</ul>
+
+<p>使用：-XX:+UseParNewGC</p>
+
+<h4 id="toc_23">Parallel</h4>
+
+<p>类似于ParNew，更关注系统吞吐量</p>
+
+<p>可以通过参数来打开自适应调节策略，虚拟机会根据当前系统的运行情况收集性能监控信息，动态调整这些参数以提供最合适的停顿时间或最大的吞吐量；也可以通过参数控制GC的时间不大于多少毫秒或者比例；新生代复制算法、老年代标记-压缩</p>
+
+<p>使用：-XX:+UseParallelGC 老年代串行</p>
+
+<h4 id="toc_24">Parallel Old 收集器</h4>
+
+<p>Parallel的老年代版本，老年代并行标记 - 压缩</p>
+
+<p>使用：-XX:+UseParallelOldGC 使用Parallel收集器 + 老年代并行</p>
+
+<h4 id="toc_25">CMS收集器</h4>
+
+<p>Concurrent Mark Sweep：并行标记清除</p>
+
+<p>目标：追求最短停顿时间</p>
+
+<p>过程：</p>
+
+<ul>
+<li>触发条件
+<ul>
+<li>老年代、永久代使用率达到92%</li>
+<li>新生代没有足够的空间晋升为老年代</li>
+</ul></li>
+<li>初始标记
+<ul>
+<li>STW</li>
+<li>标记GC roots直接关联的老年代对象、标记新生代可达的老年代对象</li>
+<li>速度快</li>
+</ul></li>
+<li>并发标记
+<ul>
+<li>递归标记上一步骤中，已标记对象的内部可引用对象</li>
+<li>并发标记过程中发生变化的，记号为dirty</li>
+<li>时间长，但并发执行</li>
+</ul></li>
+<li>并发预清理
+<ul>
+<li>标记新生代中的新出现对象引用的老年代对象，新晋升的老年代对象</li>
+<li>扫描上一阶段中的dirty对象，重新处理</li>
+<li>循环直至达到最大循环次数（默认无），最长时间（默认5秒）</li>
+<li>目的是尽量减少下一阶段的暂停时间</li>
+</ul></li>
+<li>重新标记
+<ul>
+<li>STW</li>
+<li>修正并发标记期间，因程序运作导致的误差
+<ul>
+<li>重新扫描新生代</li>
+<li>重新扫码GC roots可达对象</li>
+<li>处理标记为dirty的对象</li>
+</ul></li>
+<li>时间中等</li>
+</ul></li>
+<li>并发清除
+<ul>
+<li>不会STW</li>
+</ul></li>
+</ul>
+
+<p>优点：</p>
+
+<ul>
+<li>并发收集，低停顿</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+<li>标记 - 清除算法会产生大量碎片、并发阶段会降低吞吐量</li>
+</ul>
+
+<p>参数使用：</p>
+
+<ul>
+<li>-XX:+UseConcMarkSweepGC 使用CMS收集器</li>
+<li>-XX:+ UseCMSCompactAtFullCollection Full GC后，进行一次碎片整理；整理过程是独占的，会引起停顿时间变长</li>
+<li>-XX:+CMSFullGCsBeforeCompaction 设置进行几次Full GC后，进行一次碎片整理</li>
+<li>-XX:ParallelCMSThreads 设定CMS的线程数量（一般情况约等于可用CPU数量）</li>
+</ul>
+
+<h4 id="toc_26">G1收集器</h4>
+
+<p>特点：</p>
+
+<ul>
+<li>标记 - 压缩，不会产生碎片</li>
+<li>将内存划分为若干区域，新生代、老年代等是各个区域的组合</li>
+<li>每个区块一个rememberd set，记录进入的指针</li>
+<li>预测各区块的回收时间，回收部分区块，从而达到可预测时间的目的</li>
+</ul>
+
+<p><img src="media/15980814209679/15980908684125.jpg" alt=""/></p>
+
+<p><img src="media/15980814209679/15981482084026.jpg" alt=""/></p>
+
+<h3 id="toc_27">GC调优工具</h3>
+
+<h4 id="toc_28">自带图形工具</h4>
+
+<ul>
+<li>jconsole</li>
+<li>jvisualvm</li>
+</ul>
+
+<h4 id="toc_29">命令行工具</h4>
+
+<ul>
+<li><p>jps：打印java process status</p>
+<p><img src="media/15980814209679/15980939009037.jpg" alt="" style="width:303px;"/></p></li>
+<li><p>jstat：</p>
+<ul>
+<li>JVM statistics Monitoring</li>
+<li>用于监视虚拟机运行时状态信息的命令，它可以显示出虚拟机进程中的类装载、内存、垃圾收集、JIT编译等运行数据</li>
+</ul></li>
+</ul>
+
+<p><img src="media/15980814209679/15980939723822.jpg" alt="" style="width:411px;"/></p>
+
+<ul>
+<li>jmap：生成堆快照</li>
+<li>jhat：分析堆快照</li>
+<li>jstack：生成线程快照</li>
+<li>jinfo：查看虚拟机参数</li>
+</ul>
+
+<h4 id="toc_30">GC优化</h4>
+
+<ul>
+<li>-Xms -Xmx调整初始堆大小和最大堆大小适配机器内存大小</li>
+</ul>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[ForkJoinPool 相关]]></title>
+    <link href="https://chenrenyi.github.io/15922331141719.html"/>
+    <updated>2020-06-15T22:58:34+08:00</updated>
+    <id>https://chenrenyi.github.io/15922331141719.html</id>
+    <content type="html"><![CDATA[
+<pre><code class="language-java">package fighting.threads;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.*;
+
+/**
+ * ForkJoinPool学习
+ * 不同之处：
+ * 1、没有一个公共的任务队列，而是每个工作线程都有自己两个任务队列（外部和内部产生的子任务）
+ * 2、目的是避免处理大量短平快任务时，对公共队列任务的争抢引发性能问题。即每个任务执行都很快，但多并发情况下公共任务队列push和pop的加锁成为了瓶颈
+ *
+ * 两个作用：
+ * 1、分而治之，允许任务执行过程中，再次提交子任务，从而缩短时间
+ * 2、工作窃取，线程池中已完成的工作线程，将主动获取所有线程队列中已提交未完成的任务或子任务
+ *
+ * 对应的类：
+ * ForkJoinPool：线程池
+ * ForkJoinPool.common：全局公用的线程池
+ * ForkJoinTask：有返回值的任务
+ * ForkJoinAction：没有返回值任务
+ *
+ * 相关类：
+ * Executors.newWorkStealingPool()
+ * stream.parallelStream()
+ */
+public class ForkJoinPoolTest {
+
+    /**
+     * 测试入口
+     */
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ForkJoinPool pool = new ForkJoinPool(10);
+        ForkJoinTask&lt;Integer&gt; result = pool.submit(new CalcIntegerTask(0, 100000));
+        System.out.println(result.get());
+        pool.shutdown();
+
+        // 通过executors创建线程池
+        Executors.newWorkStealingPool().submit(() -&gt; System.out.println(&quot;a runnable task&quot;));
+
+        // parallelStream（pærəlel），默认使用 ForkJoinPool.common
+        List&lt;Integer&gt; numbers = Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+        numbers.parallelStream().forEach(System.out::println);
+    }
+
+}
+
+/**
+ * 数字计算任务
+ */
+class CalcIntegerTask extends RecursiveTask&lt;Integer&gt; {
+
+    private Integer start;
+
+    private Integer end;
+
+    public CalcIntegerTask(Integer start, Integer end) {
+        this.start = start;
+        this.end = end;
+    }
+
+    @Override
+    protected Integer compute() {
+        int sum = 0;
+        if (end - start &lt;= 100) {
+            // 数据量少时直接计算
+            for (int i = start; i &lt;= end; i++) {
+                sum += i;
+            }
+        } else {
+            // 数据量大时，分而治之。拆分子任务提交
+            int middle = (end - start) / 2 + start;
+            CalcIntegerTask leftTask = new CalcIntegerTask(start, middle);
+            CalcIntegerTask rightTask = new CalcIntegerTask(middle + 1, end);
+
+            // 子任务需要调用 fork 方法
+            leftTask.fork();
+            rightTask.fork();
+
+            // 使用 join 方法等待并获取值
+            sum = leftTask.join() + rightTask.join();
+        }
+
+        return sum;
+    }
+}
+
+</code></pre>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Spring]]></title>
+    <link href="https://chenrenyi.github.io/15980950267265.html"/>
+    <updated>2020-08-22T19:17:06+08:00</updated>
+    <id>https://chenrenyi.github.io/15980950267265.html</id>
+    <content type="html"><![CDATA[
+<h2 id="toc_0">介绍</h2>
+
+<p>Spring的核心是IOC容器和AOP支持，通过IOC容器管理各种类，通过AOP增强服务</p>
+
+<h2 id="toc_1">IOC 控制反转</h2>
+
+<p>概述：Inversion of Control</p>
+
+<p>控制指的是：当前对象对内部成员的控制权。</p>
+
+<p>反转指的是：这种控制权不由当前对象管理了，由其他(类,第三方容器)来管理</p>
+
+<p>实现途径：依赖查找，依赖注入</p>
+
+<p><strong>优点</strong>：</p>
+
+<ul>
+<li>不用自己组装，拿来就用。</li>
+<li>享受单例的好处，效率高，不浪费空间。</li>
+<li>便于单元测试，方便切换mock组件。</li>
+<li>便于进行AOP操作，对于使用者是透明的。</li>
+<li>统一配置，便于修改。</li>
+</ul>
+
+<h2 id="toc_2">DI 依赖注入</h2>
+
+<p>Dependency injection</p>
+
+<p>就是传入一个实例给一个对象</p>
+
+<h2 id="toc_3">AOP 切面编程</h2>
+
+<p>将业务逻辑与样板逻辑分开，实现逻辑的组合，实现原理：动态代理</p>
+
+<h2 id="toc_4">动静态代理</h2>
+
+<ul>
+<li>静态代理
+<ul>
+<li>就是改代码，用代理模式在代码里面写死</li>
+</ul></li>
+<li>动态代理
+<ul>
+<li>使用 java.lang.reflect.Proxy</li>
+<li>只能代理接口</li>
+<li>使用反射所以性能不太好</li>
+</ul></li>
+</ul>
+
+<pre><code class="language-java">package com.proxy;
+
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+public class ProxyFactory {
+
+    private Object target;// 维护一个目标对象
+
+    public ProxyFactory(Object target) {
+        this.target = target;
+    }
+
+    // 为目标对象生成代理对象
+    public Object getProxyInstance() {
+        return Proxy.newProxyInstance(target.getClass().getClassLoader(), target.getClass().getInterfaces(),
+                new InvocationHandler() {
+
+                    @Override
+                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                        System.out.println(&quot;开启事务&quot;);
+
+                        // 执行目标对象方法
+                        Object returnValue = method.invoke(target, args);
+
+                        System.out.println(&quot;提交事务&quot;);
+                        return null;
+                    }
+                });
+    }
+}
+</code></pre>
+
+<ul>
+<li>cglib代理
+<ul>
+<li>cglib (Code Generation Library )是一个第三方代码生成类库，运行时在内存中动态生成一个子类对象从而实现对目标对象功能的扩展</li>
+<li>优点：解决动态代理只能代理实现接口的类的问题，生成实际子类和字节码故性能优于动态代理</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_5">循环依赖</h2>
+
+<p>A的实例依赖B，B的实例依赖A</p>
+
+<h5 id="toc_6">解决办法：</h5>
+
+<ul>
+<li>惰性加载，需要的时候再加载进行</li>
+<li>Spring默认解决办法：
+<ul>
+<li>创建A但不初始化，创建并初始化B，此时B拥有的是A的未初始化的引用。实例化B后，再回来初始化A</li>
+<li>当前创建bean池：创建过程中一直保持在池里面，用于判断是否循环依赖</li>
+<li>三级缓存：
+<ul>
+<li>三级：进入实例化阶段的单例对象工厂的cache</li>
+<li>二级：已创建未初始化</li>
+<li>一级：已实例化</li>
+</ul></li>
+<li>创建过程：
+<ul>
+<li>A创建到一半，将自己置于三级缓存中，发现依赖B。转而创建B，并一级一级找A缓存，创建B完成后回到A的创建过程继续</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h2 id="toc_7">杂项</h2>
+
+<h3 id="toc_8">AutoWire与Resource</h3>
+
+<ul>
+<li>autowire：按类型注入，spring提供的注解</li>
+<li>resource：按名称注入，java自带，也支持输入参数按类型。找不到时层层退化<br/></li>
+<li>@Qualifier：存在多个同类型bean时，可以使用它来作区分</li>
+</ul>
+
+<h3 id="toc_9">bean的作用域</h3>
+
+<ul>
+<li><p>singleton : bean在每个Spring ioc 容器中只有一个实例。</p></li>
+<li><p>prototype：一个bean的定义可以有多个实例。</p></li>
+<li><p>request：每次http请求都会创建一个bean，该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+<li><p>session：在一个HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+<li><p>global-session：在一个全局的HTTP Session中，一个bean定义对应一个实例。该作用域仅在基于web的Spring ApplicationContext情形下有效。</p></li>
+</ul>
+
+<h3 id="toc_10">事务传播机制</h3>
+
+<pre><code class="language-text">① PROPAGATION_REQUIRED：如果当前没有事务，就创建一个新事务，如果当前存在事务，就加入该事务，该设置是最常用的设置。
+
+② PROPAGATION_SUPPORTS：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就以非事务执行。
+
+③ PROPAGATION_MANDATORY：支持当前事务，如果当前存在事务，就加入该事务，如果当前不存在事务，就抛出异常。
+
+④ PROPAGATION_REQUIRES_NEW：创建新事务，无论当前存不存在事务，都创建新事务。
+
+⑤ PROPAGATION_NOT_SUPPORTED：以非事务方式执行操作，如果当前存在事务，就把当前事务挂起。
+
+⑥ PROPAGATION_NEVER：以非事务方式执行，如果当前存在事务，则抛出异常。
+
+⑦ PROPAGATION_NESTED：如果当前存在事务，则在嵌套事务内执行。如果当前没有事务，则按REQUIRED属性执行。
+</code></pre>
 
 ]]></content>
   </entry>

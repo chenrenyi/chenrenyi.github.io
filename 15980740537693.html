@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Spring Cloud 系列 - 白驼山庄
+        Java并发 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,114 +221,500 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-<h1>Spring Cloud 系列</h1>
+<h1>Java并发</h1>
 
-<h2 id="toc_0">服务注册</h2>
+<h2 id="toc_0">概念</h2>
 
-<p>提供服务的注册与查询功能</p>
-
-<h3 id="toc_1">Eureka</h3>
-
-<p>保证cap中的ap，即可用性。<br/>
-服务注册相对要快，因为不需要等注册信息replicate到其他节点，也不保证注册信息是否replicate成功<br/>
-当数据出现不一致时，虽然A, B上的注册信息不完全相同，但每个Eureka节点依然能够正常对外提供服务，这会出现查询服务信息时如果请求A查不到，但请求B就能查到。如此保证了可用性但牺牲了一致性</p>
-
-<h3 id="toc_2">Consule</h3>
-
-<p>保证cap中的cp，即强一致性。<br/>
-服务注册相比Eureka会稍慢一些。因为Consul的raft协议要求必须过半数的节点都写入成功才认为注册成功<br/>
-Leader挂掉时，重新选举期间整个consul不可用。保证了强一致性但牺牲了可用性。</p>
-
-<h2 id="toc_3">网关 - Api Gateway</h2>
-
-<h3 id="toc_4">介绍</h3>
-
-<p>网关：路由分发和过滤</p>
+<h3 id="toc_1">并发编程三要素：</h3>
 
 <ul>
-<li>作为代理，如nginx一般转发请求到后端服务</li>
-<li>配置服务注册中心，根据服务名自动转发</li>
-<li>统一请求入口，进行公共处理，如：
+<li>原子性：要么成功要么失败</li>
+<li>可见性：线程A修改完变量后，线程B能否感知</li>
+<li>有序性：指令执行顺序</li>
+</ul>
+
+<h3 id="toc_2">Java内存模型</h3>
+
+<p>即Java虚拟机的内存规范，用于屏蔽各操作系统和平台间的差异</p>
+
+<p>具体内容：</p>
+
 <ul>
-<li>身份认证</li>
-<li>日志记录</li>
-<li>配合限流库：hystrix，熔断限流降级依赖隔离等</li>
-<li>配合负载均衡库：ribbon，流量负载均衡</li>
+<li>变量在主存中（内存）</li>
+<li>线程有自己的工作内存（类似高速缓存）</li>
+<li>线程对变量操作只能在自身工作内存中执行，不能直接操作主存</li>
+</ul>
+
+<p>内存模型关于三要素的保证：</p>
+
+<ul>
+<li>原子性
+<ul>
+<li>简单类型的赋值才是原子操作（x = 10 是，x = y 不是）</li>
+</ul></li>
+<li>可见性
+<ul>
+<li>不保证，需要使用volatile关键字</li>
+</ul></li>
+<li>有序性
+<ul>
+<li>允许使用指令重排序，对单线程无影响，对多线程会造成影响</li>
+<li>能够保证的有：
+<ul>
+<li>保证单线程内指令重排序对最终结果无影响（也即实际执行顺序可能会变，但结果不变）</li>
+<li>若 unlock 写在前面，lock写在后面，不会重排序造成lock在前</li>
+<li>volatile变量，对它的先写后读操作，不会重排序成先读后写</li>
+<li>线程4个顺序，不重要</li>
+</ul></li>
 </ul></li>
 </ul>
 
-<h3 id="toc_5">zuul</h3>
+<h3 id="toc_3">指令重排序</h3>
 
-<p><em>路由转发</em></p>
+<p>操作系统为了性能优化，实际执行指令的顺序可能与书写顺序不一致</p>
 
-<blockquote>
-<p>与服务注册中心配置时不需要配置</p>
-</blockquote>
+<p>这种优化不会改变单线程的实际执行结果，但对多线程有影响</p>
 
-<pre><code class="language-text">zuul:
-    routes:
-        bms-biz:
-            path: /api/bms/biz/**
-            sensitiveHeaders: Content-Length
-            url: http://bms-biz.dsg.cfpamf.com
+<p>举例：</p>
+
+<pre><code class="language-java">x = y;
+z = 1;
+z++;
+x = x + z
 </code></pre>
 
-<p><em>过滤</em></p>
-
-<pre><code class="language-text">preFilter  # 转发前拦截处理
-routeFilter # 实际路由
-postFilter  # 转发后拦截处理
+<pre><code class="language-text">对应cpu行为，x = y，去内存中取y的值，较慢
+z = 1;z++;
+可能对应设置寄存器为1，寄存器进行加1操作。
+显然，等待 x = y的这段时间，先做后面两行代码操作是没问题的
 </code></pre>
 
-<h3 id="toc_6">spring cloud gateway</h3>
+<h2 id="toc_4">Volatile</h2>
 
-<p>同上</p>
+<p><strong>作用</strong></p>
 
-<h2 id="toc_7">网络相关</h2>
+<ul>
+<li>禁止指令重排序
+<ul>
+<li>当程序执行到volatile变量的读或写时，保证前面的读写已发生且已可见，后面的读写未发生</li>
+<li>书写顺序在volatile变量操作前面的指令不会排到后面，反之一样</li>
+</ul></li>
+<li>只保证可见性，不保证原子性</li>
+</ul>
 
-<h3 id="toc_8">feign</h3>
+<p><strong>实现原理</strong><br/>
+内存屏障，估计是cpu提供的功能：</p>
 
-<p>http调用客户端，通过注解调用接口<br/>
-本质是 ribbon + hystrix</p>
+<ul>
+<li>禁止指令重排序，同上</li>
+<li>写操作立即刷新进主内存</li>
+<li>线程的读volatile变量操作，不会使用高速缓存，而是会去主存再读一遍</li>
+</ul>
 
-<h3 id="toc_9">ribbon</h3>
+<p><strong>场景举例</strong></p>
 
-<p>负载均衡，重试</p>
-
-<pre><code class="language-text">ribbon:
-  ReadTimeout: 50000
-  ConnectTimeout: 50000
-  MaxAutoRetries: 0
-  MaxAutoRetriesNextServer: 1
+<pre><code class="language-java">//线程1
+volatile boolean stop = false;
+while(!stop){
+    doSomething();
+}
+ 
+//线程2
+stop = true;
 </code></pre>
 
-<h3 id="toc_10">Hystrix</h3>
+<h2 id="toc_5">锁</h2>
 
-<blockquote>
-<p>[hIst&#39;rIks](嗨斯捶克斯）</p>
-</blockquote>
+<h3 id="toc_6">概念</h3>
 
-<p>客户端容错保护，特性有服务降级、服务熔断、请求缓存、请求合并、依赖隔离</p>
+<ul>
+<li>可重入锁
+<ul>
+<li>内部可以再次进入</li>
+<li>假如用变量 x 来表示，进入锁即加1，超过1即不能再进入锁。那么已经获得锁的方法，递归调用自己，是不能获得锁的，即为不可重入锁。反之为可重入锁。</li>
+</ul></li>
+<li>公平锁：先等锁的先获得锁</li>
+<li>非公平锁：等待队列上的线程，不分先后顺序，每次有机会时都随机指定一个</li>
+<li>自旋锁：拿不到锁时不是线程阻塞，而是空白死循环去一直拿</li>
+<li>乐观锁：默认无冲突，先操作再检测冲突</li>
+<li>悲观锁：默认有冲突，先加锁再操作</li>
+<li>独占锁：ReentrantLock/Synchronized</li>
+<li>共享锁：ReentrantReadWriteLock，读锁为共享锁，写锁为独占锁</li>
+</ul>
 
-<p><strong>断路器</strong></p>
+<h3 id="toc_7">Synchronized</h3>
 
-<pre><code class="language-text">@HystrixCommand(fallbackMethod = &quot;processHystrix_Get&quot;)
+<h4 id="toc_8">特性</h4>
+
+<ul>
+<li>可重入</li>
+<li>抛出异常会自动释放锁</li>
+</ul>
+
+<h4 id="toc_9">版本差异</h4>
+
+<p>版本1.6及之前</p>
+
+<pre><code class="language-text">调用操作系统原生方法进行同步控制
 </code></pre>
 
-<p>达到一定条件时，不再执行原方法，而改为执行 fallback 方法</p>
+<p>版本1.6之后</p>
 
-<h2 id="toc_11">配置中心</h2>
+<ul>
+<li>分为无状态锁、偏向锁、轻量级锁、重量级锁
+<ul>
+<li>默认用开销少的锁，竞争大的时候再升级，少的时候降级。因而可以优化性能</li>
+</ul></li>
+<li>锁粗化，即合并加锁</li>
+<li>锁消除，判断代码有没有线程外的变量，来判断是否需要加锁</li>
+<li>适应性自旋，即成功过一下一次循环就久一点，否则就短一点</li>
+</ul>
 
-<h3 id="toc_12">spring cloud config</h3>
+<h4 id="toc_10">单例模式</h4>
 
-<p>提供配置信息</p>
+<pre><code class="language-java">public class Singleton {
+
+    private volatile static Singleton uniqueInstance;
+
+    private Singleton() {
+    }
+
+    public static Singleton getUniqueInstance() {
+       //先判断对象是否已经实例过，没有实例化过才进入加锁代码
+        if (uniqueInstance == null) {
+            //类对象加锁
+            synchronized (Singleton.class) {
+                if (uniqueInstance == null) {
+                    uniqueInstance = new Singleton();
+                }
+            }
+        }
+        return uniqueInstance;
+    }
+}
+</code></pre>
+
+<pre><code class="language-text">volatile阻止的不是singleton = newSingleton()这句话内部[分配空间、初始化、赋值]的指令重排，而是保证了在一个写操作（[1-2-3]）完成之前，不会调用读操作（if (instance == null)）
+</code></pre>
+
+<h3 id="toc_11">Lock</h3>
+
+<h4 id="toc_12">ReadWriteLock</h4>
+
+<p>读写锁</p>
+
+<h4 id="toc_13">ReentrantLock - 排它锁</h4>
+
+<p><strong>支持公平与非公平</strong></p>
+
+<pre><code class="language-java">// 构造参数：isFair
+Lock NonFairlock = new ReentrantLock(false);
+Lock fairLock = new ReentrantLock(true);
+</code></pre>
+<br>
+<p><strong>生产者消费者示例</strong></p>
+
+<pre><code class="language-java">// 馒头生产消费示例
+package cn.chenrenyi.start;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+/**
+ * @author chenrenyi
+ **/
+public class ProductAndConsumeQueue {
+
+    public List&lt;Integer&gt; queue;
+
+    private int maxQueueSize;
+
+    private Lock lock;
+
+    private Condition notFull;
+
+    private Condition notEmpty;
+
+    public ProductAndConsumeQueue(int maxQueueSize) {
+        this.queue = new ArrayList&lt;&gt;();
+        this.maxQueueSize = maxQueueSize;
+        this.lock = new ReentrantLock(true);
+        this.notFull = lock.newCondition();
+        this.notEmpty = lock.newCondition();
+    }
+
+    public void push() {
+        try {
+            lock.lock();
+            while (queue.size() == maxQueueSize) {
+                try {
+                    // wait until not full
+                    System.out.println(&quot;队列已满，生产者休眠中，等待队列不满再生产&quot;);
+                    notFull.await();
+                    System.out.println(&quot;生产者被唤醒&quot;);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // start to push because of not empty
+            queue.add(new Random().nextInt());
+            System.out.println(&quot;生产者生产了馒头&quot;);
+
+            // signal to public that queue is not empty now.
+            notEmpty.signal();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public void pop() {
+        try {
+            lock.lock();
+            while (queue.size() == 0) {
+                try {
+                    // wait until not empty
+                    System.out.println(&quot;队列已空，消费者进入休眠，等待队列不空时再消费&quot;);
+                    notEmpty.await();
+                    System.out.println(&quot;消费者被唤醒&quot;);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // start to push because of not empty
+            queue.remove(0);
+            System.out.println(&quot;消费了馒头&quot;);
+
+            // signal to public that queue is not full now.
+            notFull.signal();
+
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    public static void test() {
+        ProductAndConsumeQueue queue = new ProductAndConsumeQueue(4);
+
+        Runnable productor = new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    queue.push();
+                }
+            }
+        };
+
+        Runnable consumer = new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    try {
+                        TimeUnit.SECONDS.sleep(new Random().nextInt(5));
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    queue.pop();
+                }
+            }
+        };
+
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        executorService.execute(productor);
+        executorService.execute(consumer);
+        executorService.shutdown();
+    }
+}
+</code></pre>
+
+<h3 id="toc_14">相关类</h3>
+
+<h4 id="toc_15">Atomic</h4>
+
+<pre><code class="language-java">包：java.util.concurrent.atomic
+示例：AtomicInteger.incrementAndGet()
+</code></pre>
+<br>
+<p><strong>实现原理</strong><br/>
+自旋加CAS+volatile：<code>while(cas(old, new)){}</code></p>
+
+<p><strong>CAS</strong><br/>
+compare and swap，cpu提供的指令，比较并替换。上述类的原理。</p>
+
+<p><strong>ABA问题</strong><br/>
+线程1将变量替换2，线程2又替换为1，线程3以为没变其实已经变过一轮了<br/>
+解决方法：</p>
+
+<ul>
+<li>AtomicStampedReference：版本号解决，对原数加1时，对版本号也加1</li>
+</ul>
+
+<h4 id="toc_16">并发工具包</h4>
+
+<ul>
+<li>Semaphore（信号量）-允许多个线程同时访问</li>
+<li>CountDownLatch（倒计时器）
+<ul>
+<li>一般用于某个线程A等待若干个其他线程执行完任务之后，它才执行</li>
+</ul></li>
+<li>CyclicBarrier（循环栅栏）
+<ul>
+<li>一般用于一组线程互相等待至某个状态，然后这一组线程再同时执行</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_17">线程</h2>
+
+<h3 id="toc_18">线程池</h3>
+
+<p>构造函数</p>
+
+<pre><code class="language-java">/**
+ * Creates a new {@code ThreadPoolExecutor} with the given initial
+ * parameters.
+ *
+ * @param corePoolSize the number of threads to keep in the pool, even
+ *        if they are idle, unless {@code allowCoreThreadTimeOut} is set
+ * @param maximumPoolSize the maximum number of threads to allow in the
+ *        pool
+ * @param keepAliveTime when the number of threads is greater than
+ *        the core, this is the maximum time that excess idle threads
+ *        will wait for new tasks before terminating.
+ * @param unit the time unit for the {@code keepAliveTime} argument
+ * @param workQueue the queue to use for holding tasks before they are
+ *        executed.  This queue will hold only the {@code Runnable}
+ *        tasks submitted by the {@code execute} method.
+ * @param threadFactory the factory to use when the executor
+ *        creates a new thread
+ * @param handler the handler to use when execution is blocked
+ *        because the thread bounds and queue capacities are reached
+ * @throws IllegalArgumentException if one of the following holds:&lt;br&gt;
+ *         {@code corePoolSize &lt; 0}&lt;br&gt;
+ *         {@code keepAliveTime &lt; 0}&lt;br&gt;
+ *         {@code maximumPoolSize &lt;= 0}&lt;br&gt;
+ *         {@code maximumPoolSize &lt; corePoolSize}
+ * @throws NullPointerException if {@code workQueue}
+ *         or {@code threadFactory} or {@code handler} is null
+ */
+public ThreadPoolExecutor(int corePoolSize, 
+                          int maximumPoolSize,
+                          long keepAliveTime,
+                          @NotNull TimeUnit unit,
+                          @NotNull BlockingQueue&lt;Runnable&gt; workQueue,
+                          @NotNull ThreadFactory threadFactory,
+                          @NotNull RejectedExecutionHandler handler
+</code></pre>
+
+<h4 id="toc_19">失败处理策略</h4>
+
+<pre><code class="language-text">AbortPolicy：A handler for rejected tasks that throws a RejectedExecutionException
+
+DiscardPolicy：A handler for rejected tasks that silently discards the rejected task
+
+DiscardOldestPolicy：A handler for rejected tasks that discards the oldest unhandled request and then retries execute, unless the executor is shut down, in which case the task is discarded.
+
+CallerRunsPolicy：A handler for rejected tasks that runs the rejected task directly in the calling thread of the execute method, unless the executor has been shut down, in which case the task is discarded.
+</code></pre>
+
+<h4 id="toc_20">线程池种类</h4>
+
+<p>newSingleThreadExecutor：单线程，无限队列，不回收</p>
+
+<pre><code class="language-java">public static ExecutorService newSingleThreadExecutor() {
+        return new FinalizableDelegatedExecutorService
+            (new ThreadPoolExecutor(1, 1,
+                                    0L, TimeUnit.MILLISECONDS,
+                                    new LinkedBlockingQueue&lt;Runnable&gt;()));
+    }
+</code></pre>
+
+<p>newFixedThreadPool：固定线程数，无限队列，不回收</p>
+
+<pre><code class="language-java">public static ExecutorService newFixedThreadPool(int nThreads) {
+        return new ThreadPoolExecutor(nThreads, nThreads,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue&lt;Runnable&gt;());
+    }
+</code></pre>
+
+<p>newScheduledThreadPool：延迟或周期执行任务。</p>
+
+<pre><code class="language-java">public ScheduledThreadPoolExecutor(int corePoolSize) {
+        super(corePoolSize, Integer.MAX_VALUE, 0, NANOSECONDS,
+              new DelayedWorkQueue());
+    }
+</code></pre>
+
+<p>newCachedThreadPool</p>
+
+<pre><code class="language-java">// 无限队列，动态创建，60秒空闲即回收。使用同步队列 SynchronousQueue，提交任务操作会阻塞直到线程创建好并取出任务
+public static ExecutorService newCachedThreadPool() {
+        return new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+                                      60L, TimeUnit.SECONDS,
+                                      new SynchronousQueue&lt;Runnable&gt;());
+    }
+</code></pre>
+
+<pre>
+newWorkStealingPool：ForkJoinPool，1.7之后新增
+</pre>
+
+<h3 id="toc_21">ThreadLocal</h3>
+
+<p>线程本地变量，线程内可见，线程外不可见</p>
+
+<pre><code class="language-java">// 创建
+ThreadLocal&lt;String&gt; mStringThreadLocal = new ThreadLocal&lt;&gt;();
+ThreadLocal&lt;String&gt; mThreadLocal = new ThreadLocal&lt;String&gt;() {
+    @Override
+    protected String initialValue() {
+      return Thread.currentThread().getName();
+    }
+};
+
+// 使用
+mStringThreadLocal.set(&quot;chenrenyi&quot;);
+mStringThreadLocal.get();
+</code></pre>
+
+<p><strong>Set 创建过程</strong>：</p>
+
+<ul>
+<li>首先获取当前线程的成员变量：threadLocals，类型：ThreadLocalMap</li>
+<li>如果上述ThreadLocalMap对象不为空，则设置值，否则创建这个ThreadLocalMap对象并设置值</li>
+<li>以当前 ThreadLocal 对象为 key，set 的参数值为值</li>
+</ul>
+
+<p>即创建一个 ThreadLocalMap ，再赋值给 Thread.threadLocals 属性上。map 的 key 为创建的 ThreadLocal 对象，值为值。其中 key 弱引用，避免内存泄漏</p>
+
+<p><strong>为何只在线程内可见</strong>：</p>
+
+<p>因为 threadLocalMap 是 thread 的一个成员变量，而每个 thread 的成员变量自然不一样，所以只在线程内可见</p>
+
+<p><strong>对象存放在哪里</strong>：</p>
+
+<p>堆上</p>
 
 
 </div>
 
 <br />
 <div class="text-right" style="color: #22222282">
-	<span class="date" style="margin-right: 10px">发布于 2020/06/15</span>
+	<span class="date" style="margin-right: 10px">发布于 2020/08/22</span>
 	<span id="busuanzi_container_page_pv">
 		浏览
 	<span id="busuanzi_value_page_pv"></span> 次
@@ -341,15 +727,15 @@ postFilter  # 转发后拦截处理
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
-	        <a href="15980950267265.html"  title="Previous Post: Spring">&laquo; Spring</a>
+	        <a href="15980638067464.html"  title="Previous Post: Java基础">&laquo; Java基础</a>
 	    
 	</div>
   </div>
   <div class="large-6 columns">
 	<div class="text-right" style="padding:15px 0px;">
 		
-	        <a href="15980143464972.html"
-	        title="Next Post: 树">树 &raquo;</a>
+	        <a href="15980814209679.html"
+	        title="Next Post: Java Jvm">Java Jvm &raquo;</a>
 	    
 	</div>
   </div>
@@ -363,7 +749,7 @@ postFilter  # 转发后拦截处理
 </div>
 <script type="text/javascript">
 	$(function(){
-		var currentURL = '15922330508180.html';
+		var currentURL = '15980740537693.html';
 		$('#side-nav a').each(function(){
 			if($(this).attr('href') == currentURL){
 				$(this).parent().addClass('active');

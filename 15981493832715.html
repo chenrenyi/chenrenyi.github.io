@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        BFS（广度优先搜索）问题 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,426 +221,242 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15981744394317.html">分布式</a></h3>
-				<p>
-					<time datetime="2020-08-23T17:20:39+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>BFS（广度优先搜索）问题</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981529091955.html">运维相关</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:21:49+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">框架</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981528120452.html">网络</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:20:12+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-cpp">// 计算从起点 start 到终点 target 的最近距离
+int BFS(Node start, Node target) {
+    Queue&lt;Node&gt; q; // 核心数据结构
+    Set&lt;Node&gt; visited; // 避免走回头路
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981504896199.html">LRU（last recent used）</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:41:29+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    q.offer(start); // 将起点加入队列
+    visited.add(start);
+    int step = 0; // 记录扩散的步数
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981499416448.html">表达式求值</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:32:21+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+    while (q not empty) {
+        int sz = q.size();
+        /* 将当前队列中的所有节点向四周扩散 */
+        for (int i = 0; i &lt; sz; i++) {
+            Node cur = q.poll();
+            /* 划重点：这里判断是否到达终点 */
+            if (cur is target)
+                return step;
+            /* 将 cur 的相邻节点加入队列 */
+            for (Node x : cur.adj())
+                if (x not in visited) {
+                    q.offer(x);
+                    visited.add(x);
+                }
+        }
+        /* 划重点：更新步数在这里 */
+        step++;
+    }
+}
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981493832715.html">BFS（广度优先搜索）问题</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:23:03+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_1">二叉树的最小深度</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981488069038.html">动态规则笔记</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:13:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<p>题目：<br/>
+<a href="https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/">https://leetcode-cn.com/problems/minimum-depth-of-binary-tree/</a></p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025908754.html">安全</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:23:10+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode(int x) { val = x; }
+ * }
+ */
+class Solution {
+    // 递归版本
+    int min2(TreeNode root) {
+        if(root == null) return 0;
+        int left = min2(root.left);
+        int right = min2(root.right);
+        if(left != 0 &amp;&amp; right != 0) {
+            return 1 + Math.min(left, right);
+        } else {
+            return 1 + left + right;
+        }
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025270346.html">Zookeeper</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:22:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    public int minDepth(TreeNode root) {
+        return min2(root);
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981005517872.html">Linux</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:49:11+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    // 非递归版本
+    public int minDepth2(TreeNode root) {
+        if(root == null) {
+            return 0;
+        }
+        LinkedList&lt;TreeNode&gt; list = new LinkedList&lt;&gt;();
+        LinkedList&lt;TreeNode&gt; nextList = new LinkedList&lt;&gt;();
+        int depth = 1;
+        list.add(root);
+        while(true) {
+            if(list.isEmpty()) {
+                if(nextList.isEmpty()) break;
+                depth++;
+                list = nextList;
+                nextList = new LinkedList();
+            }
+            TreeNode node = list.removeFirst();
+            if(node == null) {
+                continue;
+            }
+            if(node.left == null &amp;&amp; node.right == null) {
+                break;
+            }
+            nextList.add(node.left);
+            nextList.add(node.right);
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980994076315.html">Redis</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:30:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        return depth;
+    }
+}
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980950267265.html">Spring</a></h3>
-				<p>
-					<time datetime="2020-08-22T19:17:06+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_2">转盘锁</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980814209679.html">Java Jvm</a></h3>
-				<p>
-					<time datetime="2020-08-22T15:30:20+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>题目：<br/>
+<a href="https://leetcode-cn.com/problems/open-the-lock/">https://leetcode-cn.com/problems/open-the-lock/</a></p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980740537693.html">Java并发</a></h3>
-				<p>
-					<time datetime="2020-08-22T13:27:33+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<pre><code class="language-java">class Solution {
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980638067464.html">Java基础</a></h3>
-				<p>
-					<time datetime="2020-08-22T10:36:46+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    List&lt;Character&gt; nums;
+    
+    public int openLock(String[] deadLocks, String target) {
+        nums = Arrays.asList(&#39;0&#39;, &#39;1&#39;, &#39;2&#39;, &#39;3&#39;, &#39;4&#39;, &#39;5&#39;, &#39;6&#39;, &#39;7&#39;, &#39;8&#39;, &#39;9&#39;);
+        List&lt;String&gt; deadLockList = Arrays.asList(deadLocks);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980143464972.html">树</a></h3>
-				<p>
-					<time datetime="2020-08-21T20:52:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>21</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        Set&lt;String&gt; list = new HashSet&lt;&gt;();
+        Set&lt;String&gt; list2 = new HashSet&lt;&gt;();
+        list.add(&quot;0000&quot;);
+        list2.add(target);
+        Set&lt;String&gt; visited = new HashSet&lt;&gt;(list);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15979335853537.html">数据库</a></h3>
-				<p>
-					<time datetime="2020-08-20T22:26:25+08:00" pubdate><span class='month'>8月</span> <span class='day'>20</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        if (deadLockList.contains(target) || deadLockList.contains(&quot;0000&quot;)) {
+            return -1;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15972372249797.html">消息队列</a></h3>
-				<p>
-					<time datetime="2020-08-12T21:00:24+08:00" pubdate><span class='month'>8月</span> <span class='day'>12</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        visited.addAll(deadLockList);
+        int step = 0;
+        while (!list.isEmpty()) {
+            Set&lt;String&gt; tmp = new HashSet&lt;&gt;(list);
+            for (String lock : tmp) {
+                list.remove(lock);
+                if (list2.contains(lock)) {
+                    return step;
+                }
+                visited.add(lock);
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+                LinkedList&lt;String&gt; nextLocks = getNextLocks(lock);
+                for (String nextLock : nextLocks) {
+                    if (visited.contains(nextLock)) {
+                        continue;
+                    }
+                    list.add(nextLock);
+                }
+            }
+            step++;
+            Set&lt;String&gt; swap = list;
+            list = list2;
+            list2 = swap;
+        }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+        return -1;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+    LinkedList&lt;String&gt; getNextLocks(String lock) {
+        LinkedList&lt;String&gt; nextLocks = new LinkedList&lt;&gt;();
+        for (int i = 0; i &lt; lock.length(); i++) {
+            StringBuilder newLock = new StringBuilder(lock);
+            int index = nums.indexOf(newLock.charAt(i));
+            char nextChar = nums.get((index + 10 + 1) % 10);
+            newLock.replace(i, i + 1, String.valueOf(nextChar));
+            nextLocks.add(newLock.toString());
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">Spring Cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+            nextChar = nums.get((index + 10 - 1) % 10);
+            newLock.replace(i, i + 1, String.valueOf(nextChar));
+            nextLocks.add(newLock.toString());
+        }
+        return nextLocks;
+    }
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+}
+</code></pre>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+</div>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/08/23</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
 
-				</p>
-			</div>
- 	 
-</div>  
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15981499416448.html"  title="Previous Post: 表达式求值">&laquo; 表达式求值</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15981488069038.html"
+	        title="Next Post: 动态规则笔记">动态规则笔记 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15981493832715.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -679,6 +495,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">

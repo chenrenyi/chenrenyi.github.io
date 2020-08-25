@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        Archives - 白驼山庄
+        数据库 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -221,426 +221,333 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-	
-		 
-		  	<h2>2020</h2>
-		
-		
-			<div>
-				<h3><a href="15981744394317.html">分布式</a></h3>
-				<p>
-					<time datetime="2020-08-23T17:20:39+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h1>数据库</h1>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981529091955.html">运维相关</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:21:49+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_0">事务特性</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981528120452.html">网络</a></h3>
-				<p>
-					<time datetime="2020-08-23T11:20:12+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>ACID：原子性、隔离性、一致性、持久性<br/>
+一致性：执行事务前后，数据保持一致。多个事务对同一数据读取一致。</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981504896199.html">LRU（last recent used）</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:41:29+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h3 id="toc_1">范式</h3>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981499416448.html">表达式求值</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:32:21+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<ol>
+<li>每个列不可再拆分</li>
+<li>非主键列完全依赖于主键，不能只依赖于主键的一部分</li>
+<li>非主键列只依赖于主键，不依赖于其它键</li>
+</ol>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981493832715.html">BFS（广度优先搜索）问题</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:23:03+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_2">隔离级别</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981488069038.html">动态规则笔记</a></h3>
-				<p>
-					<time datetime="2020-08-23T10:13:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>23</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<p>MySQL默认隔离级别：可重复读<br/>
+<br></p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025908754.html">安全</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:23:10+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<table>
+<thead>
+<tr>
+<th>隔离级别</th>
+<th>一句话解释</th>
+<th>锁</th>
+<th>问题</th>
+</tr>
+</thead>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981025270346.html">Zookeeper</a></h3>
-				<p>
-					<time datetime="2020-08-22T21:22:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<tbody>
+<tr>
+<td>未提交读 read uncommited</td>
+<td>A 事务可读到 B 事务未提交的数据</td>
+<td>读数据时未加锁 写数据时只加行级共享锁</td>
+<td>脏读，读到另一个事务未提交的数据</td>
+</tr>
+<tr>
+<td>提交读 read commited</td>
+<td>一个事务要等另一个事务提交后才能读到数据</td>
+<td>读数据时加行级共享锁 写数据时加行级排他锁，写完立即释放</td>
+<td>不可重复读，事务结束前读取了另一个事务已提交的更新数据</td>
+</tr>
+<tr>
+<td>可重复读</td>
+<td>A 事务读取数据时，不允许 B 事务修改操作</td>
+<td>读数据时加行级共享锁，直到事务结束 写数据时加行级排他锁，直到事务结束</td>
+<td>幻读，事务结束前读取了另一个事务已提交的新增数据</td>
+</tr>
+<tr>
+<td>序列化</td>
+<td>串行化顺序读取</td>
+<td>表级共享锁，直到事务结束 表级排他锁，直到事务结束</td>
+<td>无</td>
+</tr>
+</tbody>
+</table>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15981005517872.html">Linux</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:49:11+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_3">悲观锁和乐观锁</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980994076315.html">Redis</a></h3>
-				<p>
-					<time datetime="2020-08-22T20:30:07+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>行级表级的写锁（排它锁）即为悲观锁</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980950267265.html">Spring</a></h3>
-				<p>
-					<time datetime="2020-08-22T19:17:06+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_4">MVCC 多版本并发控制 Multiversion Concurrency Control</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980814209679.html">Java Jvm</a></h3>
-				<p>
-					<time datetime="2020-08-22T15:30:20+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>乐观锁实现方案之一：通过增加版本号（事务ID），来解决数据不可重复读的问题</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980740537693.html">Java并发</a></h3>
-				<p>
-					<time datetime="2020-08-22T13:27:33+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li><p>insert逻辑：</p>
+<p>创建一条记录，DB_TRX_ID为当前事务ID，DB_ROLL_PTR为NULL。</p></li>
+<li><p>delete逻辑：</p>
+<p>将当前行的DB_TRX_ID设置为当前事务ID，DELELE_BIT设置为1。</p></li>
+<li><p>update逻辑：</p>
+<p>复制一行，新行的DB_TRX_ID为当前事务ID，DB_ROLL_PTR指向上个版本的记录，事务提交后DB_ROLL_PTR设置为NULL。</p></li>
+<li><p>SELECT逻辑：</p>
+<p>1、只查找创建早于当前事务ID的记录，确保当前事务读取到的行都是事务之前就已经存在的，或者是由当前事务创建或修改的；</p>
+<p>2、行的DELETE BIT为1时，查找删除晚于当前事务ID的记录，确保当前事务开始之前，行没有被删除。</p></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980638067464.html">Java基础</a></h3>
-				<p>
-					<time datetime="2020-08-22T10:36:46+08:00" pubdate><span class='month'>8月</span> <span class='day'>22</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_5">索引数据结构</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15980143464972.html">树</a></h3>
-				<p>
-					<time datetime="2020-08-21T20:52:26+08:00" pubdate><span class='month'>8月</span> <span class='day'>21</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>采用B+树，innodb引擎。数据与索引为同一个文件，叶子结点即数据块，叶子结点未尾有指针相互串联</li>
+<li>辅助索引（主键外其它列的索引）非叶子节点存储该列的值，叶子节点（数据块）存储主键值。所以辅助索引需要查询两遍</li>
+<li>优点：
+<ul>
+<li>树的深度低，磁盘IO次数少，因而效率更高</li>
+<li>查询效率更稳定，因为数据都放在最后</li>
+</ul></li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15979335853537.html">数据库</a></h3>
-				<p>
-					<time datetime="2020-08-20T22:26:25+08:00" pubdate><span class='month'>8月</span> <span class='day'>20</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_6">聚簇索引</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15972372249797.html">消息队列</a></h3>
-				<p>
-					<time datetime="2020-08-12T21:00:24+08:00" pubdate><span class='month'>8月</span> <span class='day'>12</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>特点：</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15924514980743.html">回溯算法</a></h3>
-				<p>
-					<time datetime="2020-06-18T11:38:18+08:00" pubdate><span class='month'>6月</span> <span class='day'>18</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%AE%97%E6%B3%95%E7%AC%94%E8%AE%B0.html'>算法笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>索引与数据在一块，找到索引后即找到数据，无需再次查找</li>
+<li>索引顺序与数据块的磁盘顺序相同，所以一个表只能有一个聚簇索引</li>
+<li>主键都是聚簇索引，非主键索引都是非聚簇索引</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922331141719.html">ForkJoinPool 相关</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:34+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_7">非聚簇索引</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330840064.html">概念理论</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:58:04+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>索引与数据不在一块，索引存储着数据的指针，需要再再次查找</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15922330508180.html">Spring Cloud 系列</a></h3>
-				<p>
-					<time datetime="2020-06-15T22:57:30+08:00" pubdate><span class='month'>6月</span> <span class='day'>15</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_8">undo、redo、binlog</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15916082982624.html">Docker笔记</a></h3>
-				<p>
-					<time datetime="2020-06-08T17:24:58+08:00" pubdate><span class='month'>6月</span> <span class='day'>08</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0.html'>学习笔记</a>&nbsp;
-				   
-				  </span>
+<p>undo、redo：事务用，记录是物理操作，重复执行没有问题<br/>
+binlog：主从同步用，记录的是逻辑操作，即SQL语句，重复执行数据会出问题</p>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15913291441737.html">Zuul 网关记录请求全生命周期日志</a></h3>
-				<p>
-					<time datetime="2020-06-05T11:52:24+08:00" pubdate><span class='month'>6月</span> <span class='day'>05</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_9">引擎：MyIsam 和 innodb</h2>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15827936185226.html">iText 生僻字显示设置与汉字数字化</a></h3>
-				<p>
-					<time datetime="2020-02-27T16:53:38+08:00" pubdate><span class='month'>2月</span> <span class='day'>27</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E7%BC%96%E7%A8%8B.html'>编程</a>&nbsp;
-				   
-				  </span>
+<ul>
+<li>innodb 支持事务、外键、行级锁，MyIsam不支持</li>
+<li>innodb 主键索引与数据在同一个文件中，MyIsam索引与文件是分开的</li>
+</ul>
 
-				</p>
-			</div>
- 	
-		
-		
-			<div>
-				<h3><a href="15818551802185.html">第一篇文章</a></h3>
-				<p>
-					<time datetime="2020-02-16T20:13:00+08:00" pubdate><span class='month'>2月</span> <span class='day'>16</span> <span class='year'>2020</span></time>
-					&nbsp;&nbsp;
-				  <span class="categories">posted in 
-				  
-					    <a class='category' href='%E9%9A%8F%E7%AC%94.html'>随笔</a>&nbsp;
-				   
-				  </span>
+<h2 id="toc_10">优化</h2>
 
-				</p>
-			</div>
- 	 
-</div>  
+<p>思路：</p>
+
+<ol>
+<li>确认瓶颈，优化瓶颈处
+<ul>
+<li>添加业务日志，查看是否业务问题 </li>
+<li>配置慢查询日志，收集所有的慢SQL</li>
+</ul></li>
+<li>优化业务逻辑，优化SQL
+<ul>
+<li>比如将联表拆成业务代码来做</li>
+<li>分析慢SQL：
+<ul>
+<li>没有索引，添加索引</li>
+<li>有索引，通过 explain 命令分析是否用到了索引，根据一堆索引失效常见问题去优化。比如联合索引最左匹配，like查询没用上索引，查询时字段上加了函数等等</li>
+<li>降低select量，降低非聚簇索引二次查询，或者传输量</li>
+</ul></li>
+</ul></li>
+<li>仍然慢，加缓存</li>
+<li>数据库读写分离</li>
+<li>加机器</li>
+<li>分库分表</li>
+</ol>
+
+<h2 id="toc_11">分库分表</h2>
+
+<h3 id="toc_12">垂直分</h3>
+
+<p>即切分字段，将不常用的字段新建表来存</p>
+
+<h3 id="toc_13">水平分</h3>
+
+<p>即切分数据</p>
+
+<h3 id="toc_14">问题</h3>
+
+<p>JOIN、事务、自增ID会出现问题</p>
+
+<h3 id="toc_15">方案</h3>
+
+<ul>
+<li>range
+<ul>
+<li>即按范围，比如按id范围，按时间范围</li>
+<li>冷热分离，不均衡</li>
+</ul></li>
+<li>hash
+<ul>
+<li>比如按ID取模</li>
+<li>均衡，但不方便扩容</li>
+</ul></li>
+<li>雪花算法：分布式唯一ID的解决方案
+<ul>
+<li>时间 + 机器ID + 流水号</li>
+<li>方便扩容</li>
+</ul></li>
+<li>一致性hash算法
+<ul>
+<li>数据被映射到一个2<sup>32</sup> 的环上</li>
+<li>机器节点也被映射到一个2<sup>32</sup> 的环上</li>
+<li>按顺时针方向分发数据到下一个最近的机器节点</li>
+<li>不均衡时可使用虚拟节点，再加一层映射</li>
+<li>方便扩容，只影响环上逆时针方向的前一个节点而已</li>
+</ul></li>
+</ul>
+
+<h2 id="toc_16">分页查询</h2>
+
+<pre><code class="language-text">说明：MySQL并不是跳过offset行，而是取offset+N行，然后返回放弃前offset行，返回N行，那当offset特别大的时候，效率就非常的低下，要么控制返回的总页数，要么对超过特定阈值的页数进行SQL改写。 
+
+正例：先快速定位需要获取的id段，然后再关联： 
+
+SELECT a.* FROM 表1 a, (select id from 表1 where 条件 LIMIT 100000,20 ) b where a.id=b.id
+</code></pre>
+
+<h2 id="toc_17">Null</h2>
+
+<p>null本身是用特殊方式表示的，会占用字节</p>
+
+<h2 id="toc_18">char、varchar</h2>
+
+<ul>
+<li>char存储时会忽略后面空格</li>
+<li>超长均会截断</li>
+<li>varchar会多一个或两个字节来存储实际长度</li>
+<li>char不管实际多少字符，均占用最长字节<br/>
+## 分布式事务<br/>
+参考文章：<a href="https://juejin.im/post/5aa3c7736fb9a028bb189bca">分布式事务</a></li>
+</ul>
+
+<p>CAP:</p>
+
+<ul>
+<li>C：Consistency 一致性：同一数据的多个副本是否实时相同。</li>
+<li>A：Availability 可用性：一定时间内 &amp; 系统返回一个明确的结果 则称为该系统可用。</li>
+<li>P：Partition tolerance 分区容错性。将同一服务分布在多个系统中，从而保证某一个系统宕机，仍然有其他系统提供相同的服务。</li>
+</ul>
+
+<p>BASE：</p>
+
+<ul>
+<li>BA：base availabe 基本可用</li>
+<li>S：soft State。数据不用实时一致</li>
+<li>E：Eventual Consisstency：但数据经过一段时间后最终是一致的</li>
+</ul>
+
+<p>基于可靠消息服务的分布式事务</p>
+
+<p>全部成功时：</p>
+
+<ol>
+<li>发起方及事务方A、消息中心 M、协助方B</li>
+<li>A发送给M，要求B执行一段事务</li>
+<li>M收到后，入库，返回给A已收到</li>
+<li>A执行自己事务，完毕后向M发送commit。发送完毕后A即结束，进行其它处理</li>
+<li>M同步发送要求B执行事务的代码给B，并进行重试确保事务完成</li>
+</ol>
+
+<p>A事务执行失败时：</p>
+
+<ol>
+<li>发起方及事务方A、消息中心 M、协助方B</li>
+<li>A发送给M，要求B执行一段事务</li>
+<li>M收到后，入库，返回给A已收到</li>
+<li>A执行自己事务，执行失败，向M发送rollback。发送完毕后A即结束，进行其它处理</li>
+<li>M撤销自己的消息</li>
+</ol>
+
+<p>M未收到commit消息时：</p>
+
+<ol>
+<li>发起方及事务方A、消息中心 M、协助方B</li>
+<li>A发送给M，要求B执行一段事务</li>
+<li>M收到后，入库，返回给A已收到</li>
+<li>A执行自己事务，执行失败，向M发送rollback/commit，但消息丢了。发送完毕后A即结束，进行其它处理</li>
+<li>M一段时间后回查A状态，commit即提交，rollback即回滚，处理中则继续等待</li>
+</ol>
+
+
+</div>
+
+<br />
+<div class="text-right" style="color: #22222282">
+	<span class="date" style="margin-right: 10px">发布于 2020/08/20</span>
+	<span id="busuanzi_container_page_pv">
+		浏览
+	<span id="busuanzi_value_page_pv"></span> 次
+</div>
+
+</span>
+<hr />
+
+<div class="row clearfix">
+  <div class="large-6 columns">
+	<div class="text-left" style="padding:15px 0px;">
+		
+	        <a href="15980143464972.html"  title="Previous Post: 树">&laquo; 树</a>
+	    
+	</div>
+  </div>
+  <div class="large-6 columns">
+	<div class="text-right" style="padding:15px 0px;">
+		
+	        <a href="15972372249797.html"
+	        title="Next Post: 消息队列">消息队列 &raquo;</a>
+	    
+	</div>
+  </div>
+</div>
+
+<div class="row">
+<div style="padding:0px 0.93em;" class="share-comments">
+
+<div id="gitalk-container"></div>
+</div>
+</div>
+<script type="text/javascript">
+	$(function(){
+		var currentURL = '15979335853537.html';
+		$('#side-nav a').each(function(){
+			if($(this).attr('href') == currentURL){
+				$(this).parent().addClass('active');
+			}
+		});
+	});
+</script>
+
+<!-- 评论系统 -->
+<script src="https://cdn.jsdelivr.net/npm/gitalk@1/dist/gitalk.min.js"></script>
+<script type="text/javascript">
+	var gitalk = new Gitalk({
+ 	clientID: 'c5dfe9dadd891583b5a5',
+  	clientSecret: '7cbeee488bbcf28cb8c6884e12d71527634e8107',
+  	repo: 'chenrenyi.github.io',
+  	owner: 'chenrenyi',
+  	admin: ['chenrenyi'],
+  	createIssueManually: false,
+  	id: location.pathname,      // Ensure uniqueness and length less than 50
+  	distractionFreeMode: false  // Facebook-like distraction free mode
+})
+
+gitalk.render('gitalk-container')
+</script>
+
+<!-- 计数 -->
+<script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+  
 </div></div>
 
 
@@ -679,6 +586,8 @@ Theme used <a target="_blank" href="http://github.com">GitHub CSS</a>.</p>
 
 
 
+
+<script src="asset/prism.js"></script>
 
 
 <style type="text/css">
