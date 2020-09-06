@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>
         
-        网络 - 白驼山庄
+        短链实现 - 白驼山庄
         
     </title>
     <meta name="description" content="白驼山庄;陈仁义的博客">
@@ -225,70 +225,97 @@
                 <div class="large-9 medium-9 columns">
 
  <div class="markdown-body">
-<h1>网络</h1>
+<h1>短链实现</h1>
 
-<h2 id="toc_0">网络分层模型</h2>
+<h2 id="toc_0">跳转实现原理</h2>
 
-<p><img src="media/15981528120452/15981528491746.jpg" alt=""/></p>
-
-<p><img src="media/15981528120452/15981528604902.jpg" alt=""/></p>
-
-<h2 id="toc_1">IO模式</h2>
-
-<h3 id="toc_2">阻塞I/O</h3>
-
-<p>普普通通</p>
+<p>浏览器返回302跳转状态码</p>
 
 <ul>
-<li>进程发出IO请求后阻塞</li>
-<li>操作系统完成后，唤醒进程</li>
+<li>301 永久跳转，浏览器下次不会再访问服务器，而是直接跳转</li>
+<li>302 临时跳转，浏览器下次还会再返回，便于统计浏览次数等数据统计</li>
 </ul>
 
-<h3 id="toc_3">非阻塞I/O</h3>
+<h2 id="toc_1">短链生成方式</h2>
 
-<p>操作系统不阻塞而是返回结果</p>
+<h3 id="toc_2">Hash法</h3>
+
+<pre><code class="language-text">url.cn/hash后的原链接
+</code></pre>
+
+<h4 id="toc_3">1、对长链做哈希</h4>
+
+<p><strong>MurmurHash法</strong><br/>
+相比于sha、md5等，性能更高，分布更均匀，但相对不安全（个人理解为更容易反推）</p>
+
+<h4 id="toc_4">2、若哈希得到数字，转化</h4>
+
+<p>转化为62进制，进一步缩短长度（24个字母，大小写，加数字）</p>
+
+<h4 id="toc_5">3、若哈希重复</h4>
+
+<p>MySQL存储长短链映射关系，短链做唯一索引，插入时若失败则说明重复</p>
+
+<p>重复时，给长链做转化，如增加特定后缀，再次哈希</p>
+
+<h4 id="toc_6">4、布隆过滤器</h4>
+
+<pre><code class="language-text">本质上布隆过滤器是一种数据结构，比较巧妙的概率型数据结构（probabilistic data structure），特点是高效地插入和查询，可以用来告诉你 “某样东西一定不存在或者可能存在”。
+
+相比于传统的 List、Set、Map 等数据结构，它更高效、占用空间更少，但是缺点是其返回的结果是概率性的，而不是确切的
+</code></pre>
+
+<pre><code class="language-text">实现原理：
+对同一个值，生成多个哈希，并记录多个哈希结果
+如&#39;baidu&#39;，生成 1、4、7
+查询时，若1、4、7均有占位，则说明可能存在
+若1、4、7有任一一个不存在，则说明一定不存在
+</code></pre>
+
+<p><img src="media/15993836881187/15993841605651.jpg" alt=""/></p>
+
+<h3 id="toc_7">自增ID</h3>
+
+<pre><code class="language-text">url.cn/长链id
+</code></pre>
+
+<h4 id="toc_8">1、生成自增ID</h4>
 
 <ul>
-<li>进程发出IO请求，不阻塞而是继续往下走</li>
-<li>进程循环查询系统，系统立即返回完成/进行中</li>
+<li><p>类UUID，uuid.randomUUid，即机器识别码加uuid，缺点是长且无序，作db主键插入性能低</p></li>
+<li><p>Redis，10台机器，每台生成以0-9结尾的自增序号，可提高性能。缺点是需要考虑持久化、容灾</p></li>
+<li><p>雪花算法，机器ID+时间+随机串，缺点是若机器时间回滚有可能重复或乱序</p></li>
+<li><p>MySQL自增主键</p></li>
 </ul>
 
-<pre><code class="language-text">特点是用户进程需要不断的主动询问kernel数据好了没有。
-</code></pre>
+<h4 id="toc_9">2、MySQL自增主键</h4>
 
-<h3 id="toc_4">I/O多路复用</h3>
+<p><strong>如何降低写压力</strong></p>
 
-<p>即一个进程，通过一种机制，可以监听多个 IO 请求，多个 socket</p>
+<ul>
+<li>存储记号表，为每台机器提前生成一段范围内的ID</li>
+<li>机器收到请求后，若在段内，直接返回ID。若不在，则请求再次生成一段ID。</li>
+<li>机器将ID和长链映射关系保存</li>
+<li>防止相同长链生成不同ID
+<ul>
+<li>对长链做md5并存为索引</li>
+<li>生成时按索引查找</li>
+</ul></li>
+</ul>
 
-<p>也就是一个方法，同时监听10个连接。当有一个连接准备就绪后，方法就会返回，此时业务可以新起一个线程去处理该就绪连接。</p>
+<h2 id="toc_10">查询系统架构设计</h2>
 
-<h4 id="toc_5">select</h4>
+<p><strong>OpenResty</strong><br/>
+一个 nginx 和 lua 的集成平台，目的是直接在 nginx 内部完成业务逻辑，从而充分利用 nginx 的高并发优势</p>
 
-<p>仅仅知道有IO事件发生，不知道具体是哪个事件，需要轮询</p>
-
-<h4 id="toc_6">poll</h4>
-
-<p>与select相同，区别在于没有最大连接数的限制</p>
-
-<h4 id="toc_7">epoll</h4>
-
-<p>即event poll，事件驱动。会告知调用时，哪个流发生哪个事件</p>
-
-<h3 id="toc_8">异步IO</h3>
-
-<p>发起 IO 后，进程不阻塞也不再关心。IO 完成时，操作系统主动把数据复制到用户空间并通知进程。</p>
-
-<pre><code class="language-text">异步指的是：操作系统收到数据并复制到用户空间（即进程接收数据）这个步骤。
-
-其它3种模式，进程接收数据时，均会阻塞。
-</code></pre>
+<p><img src="media/15993836881187/15993849841395.jpg" alt=""/></p>
 
 
 </div>
 
 <br />
 <div class="text-right" style="color: #22222282">
-	<span class="date" style="margin-right: 10px">发布于 2020/08/23</span>
+	<span class="date" style="margin-right: 10px">发布于 2020/09/06</span>
 	<span id="busuanzi_container_page_pv">
 		浏览
 	<span id="busuanzi_value_page_pv"></span> 次
@@ -301,15 +328,13 @@
   <div class="large-6 columns">
 	<div class="text-left" style="padding:15px 0px;">
 		
-	        <a href="15981529091955.html"  title="Previous Post: 运维相关">&laquo; 运维相关</a>
-	    
 	</div>
   </div>
   <div class="large-6 columns">
 	<div class="text-right" style="padding:15px 0px;">
 		
-	        <a href="15981504896199.html"
-	        title="Next Post: LRU（last recent used）">LRU（last recent used） &raquo;</a>
+	        <a href="15981744394317.html"
+	        title="Next Post: 分布式">分布式 &raquo;</a>
 	    
 	</div>
   </div>
@@ -323,7 +348,7 @@
 </div>
 <script type="text/javascript">
 	$(function(){
-		var currentURL = '15981528120452.html';
+		var currentURL = '15993836881187.html';
 		$('#side-nav a').each(function(){
 			if($(this).attr('href') == currentURL){
 				$(this).parent().addClass('active');
