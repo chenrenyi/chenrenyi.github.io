@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width-device-width,initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no, minimal-ui">
+  <title>Title</title>
+  <style>
+    img {
+      height: auto;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+<h1 id="title">title</h1>
+<img id="content">
+</img>
+<br>
+<br>
+<br>
+<h1>最新列表</h1>
+<ul id="dir">
+  <li><a href="#">title</a></li>
+</ul>
+<div id="log"></div>
+</body>
+<script>
+
+  fetchList()
+  setInterval(fetchList, 1000 * 30)
+
+  function fetchList () {
+    getArticleList(function (articleList) {
+      console.log(articleList)
+      var dirHtml = []
+      articleList.records.forEach(a => {
+        if (a.type === 'zlArticle' || a.type === 'zlTrend') {
+          var singleLi = '<li><a href="#" onclick="openArticle(' + a.subjectId + ', \'' + a.type + '\')">' + a.title + '</a></li>'
+          dirHtml.push(singleLi)
+        }
+      })
+      document.getElementById('dir').innerHTML = dirHtml.join('')
+    })
+  }
+
+  function getArticleList (callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.withCredentials = true
+
+    xhr.addEventListener('readystatechange', function () {
+      if (this.readyState === 4) {
+        callback(JSON.parse(this.responseText).data)
+      }
+    })
+
+    xhr.open('GET', 'https://admin.gbhome.com/api/v4/common/3in1/discovery?pageNum=1&pageSize=30')
+    xhr.setRequestHeader('authority', 'admin.gbhome.com')
+    xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
+    xhr.setRequestHeader('authorization', '')
+    xhr.setRequestHeader('channel', 'PC')
+    xhr.setRequestHeader('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7')
+
+    xhr.send()
+  }
+
+  function openArticle (id, type) {
+    getArticle(id, type, function (res) {
+      document.getElementById('content').src = 'https://yanbaoshe.oss-cn-beijing.aliyuncs.com/images/prod-gb-share_' + type + '_' + id + '.png'
+      document.getElementById('title').innerHTML = res.zlArticle.title
+    })
+  }
+
+  function getArticle (id, type, callback) {
+    var xhr = new XMLHttpRequest()
+    xhr.withCredentials = true
+
+    xhr.addEventListener('readystatechange', function () {
+      if (this.readyState === 4) {
+        var response = JSON.parse(this.responseText)
+        callback(response.data)
+      }
+    })
+
+    xhr.open('GET', 'https://admin.gbhome.com/api/common/' + type + '/detail/' + id)
+    xhr.setRequestHeader('authority', 'admin.gbhome.com')
+    xhr.setRequestHeader('accept', 'application/json, text/plain, */*')
+    xhr.setRequestHeader('channel', 'PC')
+    xhr.setRequestHeader('accept-language', 'zh-CN,zh;q=0.9,en;q=0.8,zh-TW;q=0.7')
+    xhr.send()
+  }
+</script>
+</html>
